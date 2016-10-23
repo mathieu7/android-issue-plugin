@@ -1,0 +1,42 @@
+<idea-plugin version="2">
+  <id>com.miller.androidissuetracker</id>
+  <name>Android Issue Tracker Plugin</name>
+  <version>1.0</version>
+  <vendor email="mathieu7@gmail.com" url="http://mathieu7.github.io">Matt Miller</vendor>
+
+  <description><![CDATA[
+      Enter short description for your plugin here.<br>
+      <em>most HTML tags may be used</em>
+    ]]></description>
+
+  <change-notes><![CDATA[
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="141.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+    <group id="AndroidIssueTracker.Menu" text="_Android Issue Tracker" description="Android Issue Tracker">
+      <add-to-group group-id="MainMenu" anchor="last" />
+    </group>
+      <action id="issue_lookup" class="IssueLookupAction" text="Find Issue(s)"
+              description="Given a class name in the Android SDK, look up official AOSP issue associated with it.">
+          <add-to-group group-id="EditorPopupMenu.GoTo" anchor="last"/>
+      </action>
+  </actions>
+
+</idea-plugin>
