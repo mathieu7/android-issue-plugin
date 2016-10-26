@@ -4,16 +4,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.IllegalFormatException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class AndroidIssues implements AndroidIssueContract {
     private static class Pagination {
-        public int start, end, total;
+        int start, end, total;
     }
 
     // Our base url to fetch issue listings from.
@@ -30,11 +31,13 @@ class AndroidIssues implements AndroidIssueContract {
 
     private static AndroidIssues instance = new AndroidIssues();
 
-    public static AndroidIssues getInstance() {
+    static AndroidIssues getInstance() {
         return instance;
     }
 
     private static final int MAX_RESULTS_PER_PAGE = 100;
+
+    private static final String DETAIL_URL_TEMPLATE = "https://code.google.com/p/android/issues/detail?id=%d";
 
     private AndroidIssues() {
     }
@@ -45,8 +48,9 @@ class AndroidIssues implements AndroidIssueContract {
     }
 
     @Override
-    public List<IssueThread> getIssueDetail(long issueId) {
-        return null;
+    public List<IssueThread> getIssueDetail(long issueId) throws IOException {
+        Document doc = Jsoup.connect(String.format(DETAIL_URL_TEMPLATE, issueId)).get();
+        return scrapeDetailFromDocument(doc);
     }
 
     /**
@@ -108,7 +112,30 @@ class AndroidIssues implements AndroidIssueContract {
         return pagination;
     }
 
-    private static Document scrapeIssuesFromDocument(@NotNull Document document) {
+    private static ArrayList<IssuePost> scrapeIssuesFromDocument(@NotNull Document document) {
         Element listingTable = document.select("table[id=resultstable]").first();
+        ArrayList<IssuePost> issueList = new ArrayList<>();
+        Elements rows = listingTable.getElementsByTag("tr");
+        for (Element row : rows) {
+            Elements columns = row.getElementsByTag("td");
+            for (Element column : columns) {
+                String text = column.text().replace("&nbsp;", "");
+            }
+        }
+        return issueList;
+    }
+
+    private static ArrayList<IssueThread> scrapeDetailFromDocument(@NotNull Document document) {
+        Element table = document.select("table[class=issuepage]").first();
+        Elements thread = table.select("div[id~=hc\\d+$]");
+        ArrayList<IssueThread> issueThreads = new ArrayList<>();
+        for (Element post : thread) {
+            String date = post.select("span[class=date]").first().text();
+            String author = post.select("a[class=userlink").first().text();
+            String comment = post.select("pre").text();
+            issueThreads.add(new IssueThread(date, author, comment));
+        }
+
+        return issueThreads;
     }
 }

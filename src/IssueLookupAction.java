@@ -11,29 +11,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
 import com.opencsv.CSVReader;
+import model.IssueThread;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Matt on 10/21/2016.
- */
 
 public class IssueLookupAction extends AnAction {
-    private static final String ISSUES_URL_TEMPLATE = "https://code.google.com/p/android/issues/" +
-            "csv?colspec=ID+Status+Priority+Owner+Summary+AllLabels+Stars+Reporter+Opened+OpenedTimestamp&start=%d";
-
-    private static final String CSV_PYTHON_SCRIPT = "issue_scraper.py";
-
     private Project mProject;
     @Override
     public void actionPerformed(AnActionEvent e) {
@@ -79,8 +66,8 @@ public class IssueLookupAction extends AnAction {
                 progressIndicator.setIndeterminate(true);
 
                 try {
-                    Document listIssues = Jsoup.connect(ISSUES_URL_TEMPLATE).get();
-                    System.out.println(listIssues.body());
+                    ArrayList<IssueThread> threads = (ArrayList<IssueThread>) AndroidIssues.getInstance().getIssueDetail(97663);
+                    System.out.println(threads.get(0).getComment());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     progressIndicator.setText("Could not download issues from https://code.google.com/android");
