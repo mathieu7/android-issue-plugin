@@ -2,12 +2,19 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
 import com.opencsv.CSVReader;
+import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,9 +27,12 @@ import java.util.List;
 /**
  * Created by Matt on 10/21/2016.
  */
+
 public class IssueLookupAction extends AnAction {
     private static final String ISSUES_URL_TEMPLATE = "https://code.google.com/p/android/issues/" +
             "csv?colspec=ID+Status+Priority+Owner+Summary+AllLabels+Stars+Reporter+Opened+OpenedTimestamp&start=%d";
+
+    private static final String CSV_PYTHON_SCRIPT = "issue_scraper.py";
 
     private Project mProject;
     @Override
@@ -39,45 +49,11 @@ public class IssueLookupAction extends AnAction {
             if (token != null) {
                 Messages.showMessageDialog(mProject, "Looking for AOSP issues for : " + token.getText(),
                         "Dialog", Messages.getInformationIcon());
-                String data = downloadIssuesCSV(100);
-                List<String[]> csv = parseCSV(data);
-                csv.get(0);
+                executeDownload();
             }
         } catch (Exception exc) {
             exc.printStackTrace();
         }
-    }
-
-    /**
-     * Download the issues from google in a CSV Format.
-     * Give an offset for pagination purposes.
-     * @param offset
-     */
-    private String downloadIssuesCSV(int offset) {
-        String urlStr = String.format(ISSUES_URL_TEMPLATE, offset);
-        URL url;
-        StringBuilder output = new StringBuilder();
-        try {
-            url = new URL(urlStr);
-            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            String input;
-            while ((input = reader.readLine()) != null) {
-                output.append(input);
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return output.toString();
-    }
-
-    /**
-     * Helper function for downloading issues with no given offset.
-     * @return
-     */
-    private String downloadIssuesCSV() {
-       return downloadIssuesCSV(0);
     }
 
     private List<String[]> parseCSV(String data) {
@@ -90,5 +66,27 @@ public class IssueLookupAction extends AnAction {
             ex.printStackTrace();
         }
         return entries;
+    }
+
+    /**
+     * Download the latest list of android issues
+     */
+    private void executeDownload() {
+        ProgressManager.getInstance().run(new Task.Backgroundable(mProject, "Downloading Android Issues...") {
+            public void run(@NotNull ProgressIndicator progressIndicator) {
+
+                progressIndicator.setText("Downloading android issues...");
+                progressIndicator.setIndeterminate(true);
+
+                try {
+                    Document listIssues = Jsoup.connect(ISSUES_URL_TEMPLATE).get();
+                    System.out.println(listIssues.body());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    progressIndicator.setText("Could not download issues from https://code.google.com/android");
+                    progressIndicator.cancel();
+                }
+            }
+        });
     }
 }
