@@ -7,6 +7,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,7 +20,7 @@ class AndroidIssues implements AndroidIssueContract {
 
     // Our base url to fetch issue listings from.
     private static final String BASE_URL_TEMPLATE = "https://code.google.com/p/android/issues/list?can=2&q=assigned" +
-            "&colspec=ID+Status+Priority+Owner+Summary+Stars+Reporter+Opened+Component+Type+Version&cells=tiles";
+            "&colspec=ID%20Status%20Priority%20Owner%20Summary%20Stars%20Reporter%20Opened%20Component%20Type%20Version&cells=tiles";
 
     // Pagination parameters
     private static final String PAGINATION_PARAMS_TEMPLATE = "&num=%d&start=%d";
@@ -43,8 +44,17 @@ class AndroidIssues implements AndroidIssueContract {
     }
 
     @Override
-    public List<IssuePost> getIssues() {
-        return null;
+    public List<IssuePost> getIssues() throws IOException {
+        Document doc = downloadIssuesPage();
+        Pagination pagination = getPagination(doc);
+        ArrayList<IssuePost> issues = scrapeIssuesFromDocument(doc);
+        while (pagination.start < pagination.end && pagination.end < pagination.total) {
+            doc = downloadIssuesPage(pagination.end);
+            issues.addAll(scrapeIssuesFromDocument(doc));
+            pagination = getPagination(doc);
+            System.out.println("Fetching: " + pagination.end + " out of " + pagination.total);
+        }
+        return issues;
     }
 
     @Override
@@ -83,7 +93,7 @@ class AndroidIssues implements AndroidIssueContract {
      * @throws IOException
      */
     private Document downloadIssuesPage(int offset, int numResults) throws IOException {
-        String url = BASE_URL_TEMPLATE + String.format(PAGINATION_PARAMS_TEMPLATE, offset, numResults);
+        String url = BASE_URL_TEMPLATE + String.format(PAGINATION_PARAMS_TEMPLATE, numResults, offset);
         return Jsoup.connect(url).get();
     }
 
@@ -112,15 +122,26 @@ class AndroidIssues implements AndroidIssueContract {
         return pagination;
     }
 
+    /**
+     * Fetch a list of issues from a document.
+     * @param document
+     * @return list of IssuePosts
+     */
     private static ArrayList<IssuePost> scrapeIssuesFromDocument(@NotNull Document document) {
         Element listingTable = document.select("table[id=resultstable]").first();
         ArrayList<IssuePost> issueList = new ArrayList<>();
         Elements rows = listingTable.getElementsByTag("tr");
         for (Element row : rows) {
-            Elements columns = row.getElementsByTag("td");
-            for (Element column : columns) {
+            Elements columns = row.select("td[class~=.*col_\\d+");
+            if (columns == null || columns.isEmpty()) continue;
+            IssuePost.Builder builder = new IssuePost.Builder();
+            for (int index = 0; index < IssuePost.Column.values().length; index++) {
+                Element column = columns.get(index);
                 String text = column.text().replace("&nbsp;", "");
+                if (!text.trim().isEmpty())
+                    builder.addValue(IssuePost.Column.values()[index], text);
             }
+            issueList.add(builder.build());
         }
         return issueList;
     }
@@ -135,7 +156,6 @@ class AndroidIssues implements AndroidIssueContract {
             String comment = post.select("pre").text();
             issueThreads.add(new IssueThread(date, author, comment));
         }
-
         return issueThreads;
     }
 }

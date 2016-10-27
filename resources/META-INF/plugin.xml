@@ -25,7 +25,7 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+      <projectService serviceImplementation="ui.DynamicToolWindowWrapper" />
   </extensions>
 
   <actions>
@@ -33,10 +33,12 @@
     <group id="AndroidIssueTracker.Menu" text="_Android Issue Tracker" description="Android Issue Tracker">
       <add-to-group group-id="MainMenu" anchor="last" />
     </group>
-      <action id="issue_lookup" class="IssueLookupAction" text="Find Issue(s)"
-              description="Given a class name in the Android SDK, look up official AOSP issue associated with it.">
-          <add-to-group group-id="EditorPopupMenu.GoTo" anchor="last"/>
+      <action id="SearchIssues" class="IssueLookupAction" text="Find Issue(s)"
+              description="Given a class name/code block from the Android SDK, look up official AOSP issue associated with it.">
+          <add-to-group group-id="EditorPopupMenu1.FindRefactor" anchor="after" relative-to-action="FindUsages" />
+          <keyboard-shortcut first-keystroke="alt F9" keymap="$default" />
       </action>
+
   </actions>
 
 </idea-plugin>

@@ -1,18 +1,25 @@
+
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
 import com.opencsv.CSVReader;
-import model.IssueThread;
+import model.IssuePost;
+
 import org.jetbrains.annotations.NotNull;
+import ui.DynamicToolWindowWrapper;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -24,6 +31,7 @@ public class IssueLookupAction extends AnAction {
     private Project mProject;
     @Override
     public void actionPerformed(AnActionEvent e) {
+
         try {
             // Get the caret, the current project, and the current open file.
             Caret caret = e.getData(CommonDataKeys.CARET);
@@ -34,8 +42,6 @@ public class IssueLookupAction extends AnAction {
 
             // If it's not null, look up
             if (token != null) {
-                Messages.showMessageDialog(mProject, "Looking for AOSP issues for : " + token.getText(),
-                        "Dialog", Messages.getInformationIcon());
                 executeDownload();
             }
         } catch (Exception exc) {
@@ -64,16 +70,38 @@ public class IssueLookupAction extends AnAction {
 
                 progressIndicator.setText("Downloading android issues...");
                 progressIndicator.setIndeterminate(true);
-
+                showSamplesToolWindow(mProject);
                 try {
-                    ArrayList<IssueThread> threads = (ArrayList<IssueThread>) AndroidIssues.getInstance().getIssueDetail(97663);
-                    System.out.println(threads.get(0).getComment());
+                    ArrayList<IssuePost> issues = (ArrayList<IssuePost>) AndroidIssues.getInstance().getIssues();
+
                 } catch (IOException ex) {
                     ex.printStackTrace();
                     progressIndicator.setText("Could not download issues from https://code.google.com/android");
                     progressIndicator.cancel();
+                    Notifications.Bus.notify(new Notification("Android Issue Tracker",
+                            "Failed", "Could not refresh issues from Google," +
+                            " reason: "+ ex.getLocalizedMessage(),  NotificationType.INFORMATION));
                 }
             }
         });
     }
+
+    /**
+     * Shows the list of results in a toolwindow panel.
+     *
+     * @param project The project.
+     * @param symbol The symbol selected in IntelliJ.
+     * @param results List of SearchResult objects from cloud endpoint generated lib.
+     */
+    private void showSamplesToolWindow(@NotNull final Project project) {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                DynamicToolWindowWrapper toolWindowWrapper = DynamicToolWindowWrapper.getInstance(project);
+                ToolWindow toolWindow = toolWindowWrapper.getToolWindow(project);
+                toolWindow.show(null);
+            }
+        });
+    }
+
 }
