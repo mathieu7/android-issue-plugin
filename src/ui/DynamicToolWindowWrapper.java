@@ -9,6 +9,10 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
+import model.IssuePost;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class DynamicToolWindowWrapper {
     private static final String TOOL_WINDOW_TAG = "Find Android Issues";
@@ -18,7 +22,8 @@ public class DynamicToolWindowWrapper {
         return ServiceManager.getService(project, DynamicToolWindowWrapper.class);
     }
 
-    public ToolWindow getToolWindow(Project project) {
+    public ToolWindow getToolWindow(@NotNull Project project, @NotNull final String symbol,
+                                     final List<IssuePost> results) {
         if (mToolWindow == null) {
             mToolWindow = ToolWindowManager.getInstance(project).registerToolWindow(TOOL_WINDOW_TAG,
                     true, ToolWindowAnchor.BOTTOM);
@@ -26,20 +31,22 @@ public class DynamicToolWindowWrapper {
         }
         mToolWindow.show(null);
 
-        //TODO: Add the results view
-        /*
-        view.setClose(new Runnable() {
-        public void run() { mToolWindow.hide(null); }
-        });
-         */
+        //set the title of the window to be the token we're looking for.
+        mToolWindow.setStripeTitle(symbol);
 
-        /*Content content = ContentFactory.SERVICE.getInstance().createContent(view, "", false);
+        IssueResultsView view = new IssueResultsView(project, results);
+        view.setClose(new Runnable() {
+            public void run() { mToolWindow.hide(null); }
+        });
+
+        Content content = ContentFactory.SERVICE.getInstance().createContent(view, "", false);
         content.setDisposer(view);
         content.setShouldDisposeContent(false);
         ContentManager manager = mToolWindow.getContentManager();
         manager.removeAllContents(true);
         manager.addContent(content);
-        manager.setSelectedContent(content);*/
+        manager.setSelectedContent(content);
+
         return mToolWindow;
     }
 }

@@ -38,7 +38,5 @@
           <add-to-group group-id="EditorPopupMenu1.FindRefactor" anchor="after" relative-to-action="FindUsages" />
           <keyboard-shortcut first-keystroke="alt F9" keymap="$default" />
       </action>
-
   </actions>
-
 </idea-plugin>

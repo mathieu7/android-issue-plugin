@@ -30,6 +30,22 @@ public class IssuePost {
     private String mType;
     private String mVersion;
 
+    public String[] getAsArray() {
+        return new String[] {
+                mId,
+                mStatus,
+                mPriority,
+                mOwner,
+                mSummary,
+                mStars,
+                mReporter,
+                mOpened,
+                mComponent,
+                mType,
+                mVersion
+        };
+    }
+
     public static class Builder {
         private IssuePost mInstance;
 

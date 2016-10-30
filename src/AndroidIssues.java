@@ -7,7 +7,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -48,12 +47,12 @@ class AndroidIssues implements AndroidIssueContract {
         Document doc = downloadIssuesPage();
         Pagination pagination = getPagination(doc);
         ArrayList<IssuePost> issues = scrapeIssuesFromDocument(doc);
-        while (pagination.start < pagination.end && pagination.end < pagination.total) {
+        /*while (pagination.start < pagination.end && pagination.end < pagination.total) {
             doc = downloadIssuesPage(pagination.end);
             issues.addAll(scrapeIssuesFromDocument(doc));
             pagination = getPagination(doc);
             System.out.println("Fetching: " + pagination.end + " out of " + pagination.total);
-        }
+        }*/
         return issues;
     }
 
@@ -135,11 +134,13 @@ class AndroidIssues implements AndroidIssueContract {
             Elements columns = row.select("td[class~=.*col_\\d+");
             if (columns == null || columns.isEmpty()) continue;
             IssuePost.Builder builder = new IssuePost.Builder();
-            for (int index = 0; index < IssuePost.Column.values().length; index++) {
+            for (int index = 0, i = 0; index < IssuePost.Column.values().length; index++) {
                 Element column = columns.get(index);
-                String text = column.text().replace("&nbsp;", "");
-                if (!text.trim().isEmpty())
-                    builder.addValue(IssuePost.Column.values()[index], text);
+                String text = column.text().replaceAll("&nbsp;", " ");
+                if (!text.trim().isEmpty() && text.trim().charAt(0) != 160) {
+                    builder.addValue(IssuePost.Column.values()[i], text);
+                    i++;
+                }
             }
             issueList.add(builder.build());
         }
