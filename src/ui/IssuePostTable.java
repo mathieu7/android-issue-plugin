@@ -39,7 +39,23 @@ class IssuePostTable extends JTable {
         ((DefaultTableModel) getModel()).setDataVector(dataset, sColumnNames);
     }
 
-    private static class IssueTableModel extends DefaultTableModel {
+    public static class IssueTableModel extends DefaultTableModel {
+        public IssuePost getRowData(int rowIndex)
+        {
+            if (rowIndex  > getRowCount() || rowIndex  <  0)
+            {
+                return null;
+            }
+            IssuePost.Builder builder = new IssuePost.Builder();
+            final int columnCount = getColumnCount();
+            for (int c = 0; c  <  columnCount; c++)
+            {
+                IssuePost.Column column = IssuePost.Column.values()[c];
+                builder.addValue(column, (String) getValueAt(rowIndex, c));
+            }
+            return builder.build();
+        }
+
         @Override
         public boolean isCellEditable(int row, int column) {
             return false;

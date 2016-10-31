@@ -4,6 +4,7 @@ package model;
  * Class representing an android issue listing.
  */
 public class IssuePost {
+    private static final String DETAIL_URL_TEMPLATE = "https://code.google.com/p/android/issues/detail?id=%s";
     public enum Column {
         ID,
         STATUS,
@@ -44,6 +45,10 @@ public class IssuePost {
                 mType,
                 mVersion
         };
+    }
+
+    public final String getDetailURL() {
+        return String.format(DETAIL_URL_TEMPLATE, mId);
     }
 
     public static class Builder {

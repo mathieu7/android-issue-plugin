@@ -69,17 +69,17 @@ class IssueResultsView extends JPanel implements Disposable {
         new DoubleClickListener() {
             @Override
             protected boolean onDoubleClick(MouseEvent event) {
-                getSingleSelectedRow();
-                //invokeSelectAction(node);
+                IssuePost post = getSingleSelectedRow();
+                invokeSelectAction(post);
                 return true;
             }
         }.installOn(table);
         table.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                getSingleSelectedRow();
+                IssuePost post = getSingleSelectedRow();
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                 //   invokeSelectAction(node);
+                    invokeSelectAction(post);
                 }
             }
         });
@@ -97,10 +97,11 @@ class IssueResultsView extends JPanel implements Disposable {
     }
 
     private void invokeSelectAction(@Nullable IssuePost post) {
-        //String url = post.getURL();
-        //if (url != null) {
-        //    openExternalBrowser(url);
-        //}
+        if (post == null) return;
+        String url = post.getDetailURL();
+        if (url != null) {
+            openExternalBrowser(url);
+        }
     }
 
     private static void openExternalBrowser(@NotNull String url) {
@@ -145,8 +146,7 @@ class IssueResultsView extends JPanel implements Disposable {
         ListSelectionModel selectionModel = table.getSelectionModel();
 
         if (selectionModel.getLeadSelectionIndex() != -1) {
-            //return table.getModel().
-            //return table.getModel().getValueAt(selectionModel.getLeadSelectionIndex(), table.);
+            return ((IssuePostTable.IssueTableModel) table.getModel()).getRowData(selectionModel.getLeadSelectionIndex());
         }
         return null;
     }
@@ -195,13 +195,16 @@ class IssueResultsView extends JPanel implements Disposable {
 
         @Override
         public void update(AnActionEvent e) {
-            //String url = getURLForNode(getSingleSelectedNode());
-            //e.getPresentation().setVisible(url != null);
+            IssuePost post;
+            if ((post = getSingleSelectedRow()) != null) {
+                String url = post.getDetailURL();
+                e.getPresentation().setVisible(url != null);
+            }
         }
 
         @Override
         public void actionPerformed(AnActionEvent e) {
-            //invokeSelectAction(getSingleSelectedNode());
+            invokeSelectAction(getSingleSelectedRow());
         }
     }
 
