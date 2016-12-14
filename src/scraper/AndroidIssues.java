@@ -1,3 +1,5 @@
+package scraper;
+
 import model.IssuePost;
 import model.IssueThread;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +14,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class AndroidIssues implements AndroidIssueContract {
+public class AndroidIssues {
     private static class Pagination {
         int start, end, total;
     }
@@ -31,7 +33,7 @@ class AndroidIssues implements AndroidIssueContract {
 
     private static AndroidIssues instance = new AndroidIssues();
 
-    static AndroidIssues getInstance() {
+    public static AndroidIssues getInstance() {
         return instance;
     }
 
@@ -42,7 +44,6 @@ class AndroidIssues implements AndroidIssueContract {
     private AndroidIssues() {
     }
 
-    @Override
     public List<IssuePost> getIssues() throws IOException {
         Document doc = downloadIssuesPage();
         Pagination pagination = getPagination(doc);
@@ -56,7 +57,6 @@ class AndroidIssues implements AndroidIssueContract {
         return issues;
     }
 
-    @Override
     public List<IssueThread> getIssueDetail(long issueId) throws IOException {
         Document doc = Jsoup.connect(String.format(DETAIL_URL_TEMPLATE, issueId)).get();
         return scrapeDetailFromDocument(doc);

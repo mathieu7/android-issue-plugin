@@ -12,7 +12,6 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.PopupHandler;
@@ -153,14 +152,11 @@ class IssueResultsView extends JPanel implements Disposable {
 
     private void syncBrowser() {
         boolean visible = false;
-        /*TreeNode node = getSingleSelectedNode();
-        if (node instanceof SearchResultsNode) {
-            Result result = ((SearchResultsNode) node).getSearchResult();
-            if (result != null && showInBrowser(result)) {
-                visible = true;
-            }
-        }*/
-        if (!visible) {
+        IssuePost post = getSingleSelectedRow();
+        if (post != null) {
+            showInBrowser(post);
+            visible = true;
+        } else {
             browser.showEmpty();
         }
         if (secondComponent.isVisible() != visible) {
@@ -171,22 +167,18 @@ class IssueResultsView extends JPanel implements Disposable {
     }
 
     /**
-     * Shows the given {@link Result} inside the current {@link Browser}.
+     * Shows the given {@link IssuePost thread} inside the current {@link IssueBrowser}.
      *
-     * @param result The result to show.
+     * @param IssuePost
      * @return Whether the result could be shown.
      */
-    /*private boolean showInBrowser(@NotNull Result result) {
-        // TODO(thorogood): Make this part of Browser interface.
-        if (result.getCode() == null) {
-            return false;
-        }
+    private boolean showInBrowser(@NotNull IssuePost post) {
         Cursor currentCursor = getCursor();
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
-        browser.showResult(result);
+        //browser.showResult(post.getDetailURL(), query);
         setCursor(currentCursor);
         return true;
-    }*/
+    }
 
     private class OpenURLAction extends AnAction {
         private OpenURLAction() {

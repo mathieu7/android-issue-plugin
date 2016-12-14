@@ -1,3 +1,4 @@
+package actions;
 
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
@@ -7,31 +8,31 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
 import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
+
+import index.IssueIndex;
 import model.IssuePost;
 
 import org.jetbrains.annotations.NotNull;
+import tasks.DownloadTask;
+import tasks.IndexingTask;
 import ui.DynamicToolWindowWrapper;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class IssueLookupAction extends AnAction {
     private Project mProject;
+    private String mToken;
     private static final String sCSVFilePath = "issues.csv";
     @Override
     public void actionPerformed(AnActionEvent e) {
@@ -45,8 +46,11 @@ public class IssueLookupAction extends AnAction {
             PsiElement token = file.findElementAt(cursorPosition);
             // If it's not null, look up
             if (token != null) {
+                mToken = token.getText();
                 executeDownload();
-                //executeSearch(token.getText());
+            } else {
+                Notifications.Bus.notify(new Notification("Android Issue Tracker",
+                        "Failed", "Invalid token for search",  NotificationType.INFORMATION));
             }
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -75,33 +79,39 @@ public class IssueLookupAction extends AnAction {
         }
     }*/
 
+    private DownloadTask.Listener mDownloadListener = new DownloadTask.Listener() {
+        @Override
+        public void onDownloadCompleted(List<IssuePost> issues) {
+            showSamplesToolWindow(mProject, issues);
+        }
+
+        @Override
+        public void onDownloadFailed(Exception exception) {
+            Notifications.Bus.notify(new Notification("Android Issue Tracker",
+                    "Failed", "Could not refresh issues from Google," +
+                    " reason: "+ exception.getLocalizedMessage(),  NotificationType.INFORMATION));
+        }
+    };
+
     /**
-     * Download the latest list of android issues
+     * Download the latest android issues, scraped from code.google.com/android
      */
     private void executeDownload() {
-        ProgressManager.getInstance().run(new Task.Backgroundable(mProject, "Downloading Android Issues...") {
-            public void run(@NotNull ProgressIndicator progressIndicator) {
-
-                progressIndicator.setText("Downloading android issues...");
-                progressIndicator.setIndeterminate(true);
-                try {
-                    ArrayList<IssuePost> issues = (ArrayList<IssuePost>) AndroidIssues.getInstance().getIssues();
-                    showSamplesToolWindow(mProject, "ArrayList", issues);
-
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    progressIndicator.setText("Could not download issues from https://code.google.com/android");
-                    progressIndicator.cancel();
-                    Notifications.Bus.notify(new Notification("Android Issue Tracker",
-                            "Failed", "Could not refresh issues from Google," +
-                            " reason: "+ ex.getLocalizedMessage(),  NotificationType.INFORMATION));
-                }
-            }
-        });
+        ProgressManager.getInstance().run(new DownloadTask(mProject, mDownloadListener));
     }
 
-    private void executeSearch(final String token) {
-        showSamplesToolWindow(mProject, token, null);
+    private void executeSearch() {
+        boolean indexed = IssueIndex.exists();
+
+        if (!indexed) {
+            ProgressManager.getInstance().run(new IndexingTask(mProject));
+        }
+
+        //TODO: Check the issue index to see if the search token exists.
+        /*if (!indexed) {
+
+        }*/
+        showSamplesToolWindow(mProject, null);
     }
 
     /**
@@ -111,12 +121,12 @@ public class IssueLookupAction extends AnAction {
      * @param token The symbol selected in IntelliJ.
      * @param issues List of SearchResult objects from cloud endpoint generated lib.
      */
-    private void showSamplesToolWindow(@NotNull final Project project, final String token, final List<IssuePost> issues) {
+    private void showSamplesToolWindow(@NotNull final Project project, final List<IssuePost> issues) {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
                 DynamicToolWindowWrapper toolWindowWrapper = DynamicToolWindowWrapper.getInstance(project);
-                ToolWindow toolWindow = toolWindowWrapper.getToolWindow(project, token, issues);
+                ToolWindow toolWindow = toolWindowWrapper.getToolWindow(project, mToken, issues);
                 toolWindow.show(null);
             }
         });

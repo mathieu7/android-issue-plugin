@@ -39,7 +39,7 @@ class IssuePostTable extends JTable {
         ((DefaultTableModel) getModel()).setDataVector(dataset, sColumnNames);
     }
 
-    public static class IssueTableModel extends DefaultTableModel {
+    static class IssueTableModel extends DefaultTableModel {
         public IssuePost getRowData(int rowIndex)
         {
             if (rowIndex  > getRowCount() || rowIndex  <  0)
