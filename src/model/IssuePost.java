@@ -1,9 +1,11 @@
 package model;
 
+import java.io.Serializable;
+
 /**
  * Class representing an android issue listing.
  */
-public class IssuePost {
+public class IssuePost implements Serializable {
     private static final String DETAIL_URL_TEMPLATE = "https://code.google.com/p/android/issues/detail?id=%s";
     public enum Column {
         ID,
@@ -47,6 +49,7 @@ public class IssuePost {
         };
     }
 
+    public final String getId() { return mId; }
     public final String getDetailURL() {
         return String.format(DETAIL_URL_TEMPLATE, mId);
     }

@@ -4,9 +4,11 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import manager.AndroidIssueManager;
 import model.IssuePost;
+import model.IssueThread;
 import org.jetbrains.annotations.NotNull;
-import scraper.AndroidIssues;
+import scraper.AndroidIssueScraper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,11 +29,10 @@ public class DownloadTask extends Task.Backgroundable {
     }
 
     /**
-     * Progress Indicator strings
+     * Progress Indicator strings (TODO: Replace with localized strings)
      */
     private static final String PROGRESS_INDICATOR_TITLE = "Downloading Android Issues...";
     private static final String DOWNLOAD_FAILED_STRING = "Could not download issues from https://code.google.com/android";
-
 
     private Listener mListener;
 
@@ -47,15 +48,27 @@ public class DownloadTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator progressIndicator) {
         progressIndicator.setText(PROGRESS_INDICATOR_TITLE);
-        progressIndicator.setIndeterminate(true);
+        progressIndicator.setIndeterminate(false);
         try {
-            ArrayList<IssuePost> issues = (ArrayList<IssuePost>) AndroidIssues.getInstance().getIssues();
-            if (mListener != null) mListener.onDownloadCompleted(issues);
+            ArrayList<IssuePost> issues = (ArrayList<IssuePost>) AndroidIssueScraper.getInstance().getIssues(progressIndicator);
+            if (mListener != null) {
+                mListener.onDownloadCompleted(issues);
+            }
+            /**
+             * Iterate over the issue list and download the separate threads.
+             * Write those threads to individual files.
+             */
+            for (IssuePost issue: issues) {
+                List<IssueThread> issueThreads = AndroidIssueScraper.getInstance().getIssueDetail(issue);
+                AndroidIssueManager.writeThreadsToStorage(issue, issueThreads);
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
             progressIndicator.setText(DOWNLOAD_FAILED_STRING);
             progressIndicator.cancel();
-            if (mListener != null) mListener.onDownloadFailed(ex);
+            if (mListener != null) {
+                mListener.onDownloadFailed(ex);
+            }
         }
     }
 }

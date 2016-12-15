@@ -13,27 +13,21 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-
-import com.opencsv.CSVReader;
-
 import index.IssueIndex;
+import manager.AndroidIssueManager;
 import model.IssuePost;
-
 import org.jetbrains.annotations.NotNull;
 import tasks.DownloadTask;
 import tasks.IndexingTask;
 import ui.DynamicToolWindowWrapper;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.List;
 
 
 public class IssueLookupAction extends AnAction {
     private Project mProject;
     private String mToken;
-    private static final String sCSVFilePath = "issues.csv";
+
     @Override
     public void actionPerformed(AnActionEvent e) {
         try {
@@ -47,41 +41,28 @@ public class IssueLookupAction extends AnAction {
             // If it's not null, look up
             if (token != null) {
                 mToken = token.getText();
-                executeDownload();
+                executeSearch();
             } else {
-                Notifications.Bus.notify(new Notification("Android Issue Tracker",
-                        "Failed", "Invalid token for search",  NotificationType.INFORMATION));
+                Notifications.Bus.notify(new Notification(
+                        "Android Issue Tracker",
+                        "Failed",
+                        "Invalid token for search",
+                        NotificationType.INFORMATION));
             }
         } catch (Exception exc) {
             exc.printStackTrace();
         }
     }
 
-    private List<String[]> parseCSV(String data) {
-        List<String[]> entries = new ArrayList<>();
-        try {
-            CSVReader reader = new CSVReader(new StringReader(data));
-            entries = reader.readAll();
-            reader.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-        return entries;
-    }
-
-    // write issues to csv (TODO: indexing for trigram search)
-    /*private void writeToCSV(ArrayList<IssuePost> issues) {
-        try {
-            CSVWriter writer = new CSVWriter(new FileWriter(sCSVFilePath));
-            for (IssuePost post : issues) {
-                writer.write
-            }
-        }
-    }*/
-
     private DownloadTask.Listener mDownloadListener = new DownloadTask.Listener() {
         @Override
         public void onDownloadCompleted(List<IssuePost> issues) {
+            ApplicationManager.getApplication().invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    AndroidIssueManager.writePostsToStorage(issues);
+                }
+            });
             showSamplesToolWindow(mProject, issues);
         }
 
@@ -96,21 +77,28 @@ public class IssueLookupAction extends AnAction {
     /**
      * Download the latest android issues, scraped from code.google.com/android
      */
-    private void executeDownload() {
+    private void downloadIssues() {
         ProgressManager.getInstance().run(new DownloadTask(mProject, mDownloadListener));
     }
 
     private void executeSearch() {
         boolean indexed = IssueIndex.exists();
+        boolean cacheExists = AndroidIssueManager.getIssueDirectory().exists();
+
+        if (!cacheExists) {
+            downloadIssues();
+            return;
+        }
 
         if (!indexed) {
             ProgressManager.getInstance().run(new IndexingTask(mProject));
         }
+        try {
+            IssueIndex.searchIndex(mToken);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
-        //TODO: Check the issue index to see if the search token exists.
-        /*if (!indexed) {
-
-        }*/
         showSamplesToolWindow(mProject, null);
     }
 
@@ -118,7 +106,6 @@ public class IssueLookupAction extends AnAction {
      * Shows the list of results in a toolwindow panel.
      *
      * @param project The project.
-     * @param token The symbol selected in IntelliJ.
      * @param issues List of SearchResult objects from cloud endpoint generated lib.
      */
     private void showSamplesToolWindow(@NotNull final Project project, final List<IssuePost> issues) {

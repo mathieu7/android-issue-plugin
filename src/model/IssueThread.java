@@ -17,11 +17,9 @@ public class IssueThread {
     public String getAuthor() {
         return mAuthor;
     }
-
     public String getDate() {
         return mDate;
     }
-
     public String getComment() {
         return mComment;
     }

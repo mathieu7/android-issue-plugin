@@ -1,5 +1,7 @@
 package scraper;
 
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.util.ProgressIndicatorListener;
 import model.IssuePost;
 import model.IssueThread;
 import org.jetbrains.annotations.NotNull;
@@ -14,9 +16,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AndroidIssues {
-    private static class Pagination {
-        int start, end, total;
+public class AndroidIssueScraper {
+    public static class Pagination {
+        public int start, end, total;
     }
 
     // Our base url to fetch issue listings from.
@@ -31,9 +33,9 @@ public class AndroidIssues {
 
     private static final String PAGINATION_REGEX = ".*\\s*(\\d+)\\s*-\\s*(\\d+)\\s*of\\s*(\\d+).*";
 
-    private static AndroidIssues instance = new AndroidIssues();
+    private static AndroidIssueScraper instance = new AndroidIssueScraper();
 
-    public static AndroidIssues getInstance() {
+    public static AndroidIssueScraper getInstance() {
         return instance;
     }
 
@@ -41,24 +43,32 @@ public class AndroidIssues {
 
     private static final String DETAIL_URL_TEMPLATE = "https://code.google.com/p/android/issues/detail?id=%d";
 
-    private AndroidIssues() {
+    private AndroidIssueScraper() {
     }
 
-    public List<IssuePost> getIssues() throws IOException {
+    public Pagination getCursor() throws IOException {
+        Document doc = downloadIssuesPage();
+        Pagination pagination = getPagination(doc);
+        return pagination;
+    }
+
+    public List<IssuePost> getIssues(ProgressIndicator progressIndicator) throws IOException {
         Document doc = downloadIssuesPage();
         Pagination pagination = getPagination(doc);
         ArrayList<IssuePost> issues = scrapeIssuesFromDocument(doc);
-        /*while (pagination.start < pagination.end && pagination.end < pagination.total) {
+        while (pagination.start < pagination.end && pagination.end < pagination.total) {
             doc = downloadIssuesPage(pagination.end);
             issues.addAll(scrapeIssuesFromDocument(doc));
             pagination = getPagination(doc);
-            System.out.println("Fetching: " + pagination.end + " out of " + pagination.total);
-        }*/
+            progressIndicator.setFraction((float)issues.size() / (float)pagination.total);
+            progressIndicator.setText2("("+ issues.size() + " out of " + pagination.total + ")");
+        }
         return issues;
     }
 
-    public List<IssueThread> getIssueDetail(long issueId) throws IOException {
-        Document doc = Jsoup.connect(String.format(DETAIL_URL_TEMPLATE, issueId)).get();
+    public List<IssueThread> getIssueDetail(final IssuePost issue) throws IOException {
+        String url = issue.getDetailURL();
+        Document doc = Jsoup.connect(url).get();
         return scrapeDetailFromDocument(doc);
     }
 
@@ -152,8 +162,12 @@ public class AndroidIssues {
         Elements thread = table.select("div[id~=hc\\d+$]");
         ArrayList<IssueThread> issueThreads = new ArrayList<>();
         for (Element post : thread) {
-            String date = post.select("span[class=date]").first().text();
-            String author = post.select("a[class=userlink").first().text();
+            Element dateField = post.select("span[class=date]").first();
+            String date = dateField != null ? dateField.text() : "N/A";
+
+            Element authorField = post.select("a[class=userlink]").first();
+            String author = authorField != null ? authorField.text() : "N/A";
+
             String comment = post.select("pre").text();
             issueThreads.add(new IssueThread(date, author, comment));
         }

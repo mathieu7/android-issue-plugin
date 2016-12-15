@@ -5,13 +5,15 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import index.IssueIndex;
+import manager.AndroidIssueManager;
 import model.IssuePost;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
- * Created by Matt on 12/13/2016.
+ * Task to index the downloaded issues
  */
 public class IndexingTask extends Task.Backgroundable {
     /**
@@ -52,20 +54,18 @@ public class IndexingTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator progressIndicator) {
         progressIndicator.setIndeterminate(true);
-        if (mIssues == null) {
-            // if we haven't passed issues, just index the current directory if possible.
-            mLogger.debug("No passed issues, indexing current issue directory...");
-            try {
-                IssueIndex.indexIssueDirectory();
-                if (mListener != null) mListener.onIndexingCompleted();
-            } catch (IllegalAccessException ex) {
-                ex.printStackTrace();
-                if (mListener != null) mListener.onIndexingFailed(ex.getMessage());
-            }
-            return;
+        if (mIssues != null) {
+            // if we haven't passed issues, write them to storage first.
+            AndroidIssueManager.writePostsToStorage(mIssues);
         }
 
-        //TODO: Otherwise, let's write the issues to a file and index.
-
+        mLogger.debug("No passed issues, indexing current issue directory...");
+        try {
+            IssueIndex.indexIssueDirectory();
+            if (mListener != null) mListener.onIndexingCompleted();
+        } catch (IllegalAccessException | IOException ex) {
+            ex.printStackTrace();
+            if (mListener != null) mListener.onIndexingFailed(ex.getMessage());
+        }
     }
 }

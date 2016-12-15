@@ -12,15 +12,6 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/opencsv-3.8.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
           <root url="jar://$USER_HOME$/Downloads/commons-lang3-3.5-bin/commons-lang3-3.5/commons-lang3-3.5.jar!/" />
         </CLASSES>
         <JAVADOC />
