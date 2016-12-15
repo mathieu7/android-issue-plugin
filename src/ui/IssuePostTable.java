@@ -1,6 +1,7 @@
 package ui;
 
 import model.IssuePost;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -22,7 +23,7 @@ class IssuePostTable extends JTable {
             "Version"
     };
 
-    IssuePostTable(final List<IssuePost> results) {
+    IssuePostTable(@NotNull List<IssuePost> results) {
         super(new IssueTableModel());
 
         setRowSelectionAllowed(true);

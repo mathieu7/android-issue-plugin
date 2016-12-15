@@ -21,6 +21,7 @@ import tasks.DownloadTask;
 import tasks.IndexingTask;
 import ui.DynamicToolWindowWrapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -94,12 +95,13 @@ public class IssueLookupAction extends AnAction {
             ProgressManager.getInstance().run(new IndexingTask(mProject));
         }
         try {
-            IssueIndex.searchIndex(mToken);
+            //TODO: get hits from the index, along with issue numbers and threads
+            IssueIndex.searchForTerm(mToken);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-        showSamplesToolWindow(mProject, null);
+        showSamplesToolWindow(mProject, new ArrayList<IssuePost>());
     }
 
     /**

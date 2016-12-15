@@ -1,7 +1,6 @@
 package scraper;
 
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.util.ProgressIndicatorListener;
 import model.IssuePost;
 import model.IssueThread;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +16,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class AndroidIssueScraper {
-    public static class Pagination {
-        public int start, end, total;
+    private static class Pagination {
+        int start, end, total;
     }
 
     // Our base url to fetch issue listings from.
@@ -40,8 +39,6 @@ public class AndroidIssueScraper {
     }
 
     private static final int MAX_RESULTS_PER_PAGE = 100;
-
-    private static final String DETAIL_URL_TEMPLATE = "https://code.google.com/p/android/issues/detail?id=%d";
 
     private AndroidIssueScraper() {
     }
