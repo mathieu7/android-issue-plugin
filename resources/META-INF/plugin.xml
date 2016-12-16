@@ -1,42 +1,53 @@
 <idea-plugin version="2">
-  <id>com.miller.androidissuetracker</id>
-  <name>Android Issue Tracker Plugin</name>
-  <version>1.0</version>
-  <vendor email="mathieu7@gmail.com" url="http://mathieu7.github.io">Matt Miller</vendor>
+    <id>com.miller.androidissuetracker</id>
+    <name>Android Issue Tracker Plugin</name>
+    <version>1.0</version>
+    <vendor email="mathieu7@gmail.com" url="http://mathieu7.github.io">Matt Miller</vendor>
 
-  <description><![CDATA[
+    <description><![CDATA[
       Enter short description for your plugin here.<br>
       <em>most HTML tags may be used</em>
     ]]></description>
 
-  <change-notes><![CDATA[
+    <change-notes><![CDATA[
       Add change notes here.<br>
       <em>most HTML tags may be used</em>
     ]]>
-  </change-notes>
+    </change-notes>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="141.0"/>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="141.0"/>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
 
-  <extensions defaultExtensionNs="com.intellij">
-      <projectService serviceImplementation="ui.DynamicToolWindowWrapper" />
-  </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceImplementation="ui.DynamicToolWindowWrapper"/>
+    </extensions>
 
-  <actions>
-    <!-- Add your actions here -->
-    <group id="AndroidIssueTracker.Menu" text="_Android Issue Tracker" description="Android Issue Tracker">
-      <add-to-group group-id="MainMenu" anchor="last" />
-    </group>
-      <action id="SearchIssues" class="actions.IssueLookupAction" text="Find Issue(s)"
-              description="Given a class name/code block from the Android SDK, look up official AOSP issue associated with it.">
-          <add-to-group group-id="EditorPopupMenu1.FindRefactor" anchor="after" relative-to-action="FindUsages" />
-          <keyboard-shortcut first-keystroke="alt F9" keymap="$default" />
-      </action>
-  </actions>
+    <actions>
+        <group id="AndroidIssueTracker.Menu" text="_Android Issue Tracker" description="Android Issue Tracker">
+            <add-to-group group-id="MainMenu" anchor="last"/>
+            <action class="actions.SyncIssuesAction" id="com.miller.androidissues.actions.SyncIssuesAction"
+                    text="Sync Android Issues" description="Download the latest issues from the Android Issue Tracker">
+            </action>
+            <action id="com.miller.androidissues.actions.ClearIssueCacheAction" class="actions.ClearIssueCacheAction"
+                    text="Clear Issue cache(s)" description="Clear issue cache and indices"/>
+            <action class="actions.VisitIssuesAction" id="com.miller.androidissues.actions.VisitIssuesAction"
+                    text="Go to Android Issues Tracker" description="Open https://code.google.com/android">
+            </action>
+            <action class="actions.ReportIssueAction" id="com.miller.androidissues.actions.ReportIssueAction"
+                    text="Report an AOSP issue..." description="Report an issue to AOSP tracker">
+            </action>
+        </group>
+        <action id="com.miller.androidissues.actions.FindIssuesAction" class="actions.IssueLookupAction"
+                text="Find Issue(s)"
+                description="Given a class name/code block from the Android SDK, look up official AOSP issue associated with it.">
+            <add-to-group group-id="EditorPopupMenu1.FindRefactor" anchor="after" relative-to-action="FindUsages"/>
+            <keyboard-shortcut first-keystroke="alt F9" keymap="$default"/>
+        </action>
+    </actions>
 </idea-plugin>
