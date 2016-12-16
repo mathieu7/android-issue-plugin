@@ -2,13 +2,10 @@ package ui;
 
 import com.intellij.CommonBundle;
 import com.intellij.icons.AllIcons;
+import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
@@ -16,24 +13,20 @@ import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
+import manager.AndroidIssueManager;
 import model.IssuePost;
+import model.IssueThread;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import util.IDEUtil;
 
-import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.List;
 
 /**
  * IssueResultsView extends JPanel to show the results of searching for issues.
@@ -100,7 +93,7 @@ class IssueResultsView extends JPanel implements Disposable {
         if (post == null) return;
         String url = post.getDetailURL();
         if (url != null) {
-            IDEUtil.openExternalBrowser(url);
+            BrowserUtil.open(url);
         }
     }
 
@@ -155,12 +148,14 @@ class IssueResultsView extends JPanel implements Disposable {
      * Shows the given {@link IssuePost thread} inside the current {@link IssueBrowser}.
      *
      * @param IssuePost
+     * @param Query Term
      * @return Whether the result could be shown.
      */
-    private boolean showInBrowser(@NotNull IssuePost post) {
+    private boolean showInBrowser(@NotNull IssuePost post, final String queryString) {
         Cursor currentCursor = getCursor();
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
-        //browser.showResult(post.getDetailURL(), query);
+        List<IssueThread> issueThreads = AndroidIssueManager.getIssueThreadById(post.getId());
+        browser.showResult(issueThreads, queryString);
         setCursor(currentCursor);
         return true;
     }

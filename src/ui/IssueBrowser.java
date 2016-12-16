@@ -90,11 +90,12 @@ class IssueBrowser extends JPanel implements Disposable {
         });
     }
 
-    void showResult(List<IssueThread> issueThreads) {
+    void showResult(List<IssueThread> issueThreads, final String queryString) {
         if (issueThreads == null || issueThreads.isEmpty()) {
             showEmpty();
             return;
         }
+
 
         /*
         CodeResult code = result.getCode();
@@ -152,8 +153,7 @@ class IssueBrowser extends JPanel implements Disposable {
         LogicalPosition position = new LogicalPosition(scrollTo - 1, 0);
         setText(lines, position, highlightLines);
         String path = ResultUtils.getBaseName(code.getPath());
-        editor.setHighlighter(highlighterFactory.createEditorHighlighter(project, path));
-        */
+        editor.setHighlighter(highlighterFactory.createEditorHighlighter(project, path));*/
     }
 
     public JPanel getPanel() {

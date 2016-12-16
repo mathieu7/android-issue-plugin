@@ -138,4 +138,6 @@ public class AndroidIssueManager {
             ex.printStackTrace();
         }
     }
+
+    public static void clearCacheAndIndex() {}
 }
