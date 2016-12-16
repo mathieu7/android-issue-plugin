@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import tasks.DownloadTask;
 import tasks.IndexingTask;
 import ui.DynamicToolWindowWrapper;
+import util.IDEUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,11 +45,11 @@ public class IssueLookupAction extends AnAction {
                 mToken = token.getText();
                 executeSearch();
             } else {
-                Notifications.Bus.notify(new Notification(
+                IDEUtil.showNotification(
                         "Android Issue Tracker",
                         "Failed",
                         "Invalid token for search",
-                        NotificationType.INFORMATION));
+                        NotificationType.INFORMATION);
             }
         } catch (Exception exc) {
             exc.printStackTrace();

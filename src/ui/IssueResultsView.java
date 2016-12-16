@@ -19,6 +19,7 @@ import com.intellij.ui.ScrollPaneFactory;
 import model.IssuePost;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import util.IDEUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
@@ -99,23 +100,7 @@ class IssueResultsView extends JPanel implements Disposable {
         if (post == null) return;
         String url = post.getDetailURL();
         if (url != null) {
-            openExternalBrowser(url);
-        }
-    }
-
-    private static void openExternalBrowser(@NotNull String url) {
-        System.out.println(String.format("Opening URL: `%s`", url));
-        // In nearly all cases, this will load the user's browser with the target URL. However,
-        // swallow its exceptions for sanity.
-        try {
-            Desktop.getDesktop().browse(new URI(url));
-        } catch (URISyntaxException ignored) {
-            // Thrown if the URL is bad.
-        } catch (IOException ignored) {
-            // Thrown if a browser can't be found or run.
-        } catch (RuntimeException ignored) {
-            // Thrown on a variety of other reasons, see-
-            // http://docs.oracle.com/javase/7/docs/api/java/awt/Desktop.html#browse(java.net.URI)
+            IDEUtil.openExternalBrowser(url);
         }
     }
 

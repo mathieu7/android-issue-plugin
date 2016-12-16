@@ -10,7 +10,6 @@ import model.IssueThread;
 import org.jetbrains.annotations.NotNull;
 import scraper.AndroidIssueScraper;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class DownloadTask extends Task.Backgroundable {
                 List<IssueThread> issueThreads = AndroidIssueScraper.getInstance().getIssueDetail(issue);
                 AndroidIssueManager.writeThreadsToStorage(issue, issueThreads);
             }
-        } catch (IOException ex) {
+        } catch (AndroidIssueScraper.IssueScraperException ex) {
             ex.printStackTrace();
             progressIndicator.setText(DOWNLOAD_FAILED_STRING);
             progressIndicator.cancel();

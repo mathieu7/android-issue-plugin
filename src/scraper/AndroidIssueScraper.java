@@ -26,12 +26,7 @@ public class AndroidIssueScraper {
 
     // Pagination parameters
     private static final String PAGINATION_PARAMS_TEMPLATE = "&num=%d&start=%d";
-
-    // internal CSV file to write issues to
-    private static final String CSV_OUTPUT_FILE = "issuelist.csv";
-
     private static final String PAGINATION_REGEX = ".*\\s*(\\d+)\\s*-\\s*(\\d+)\\s*of\\s*(\\d+).*";
-
     private static AndroidIssueScraper instance = new AndroidIssueScraper();
 
     public static AndroidIssueScraper getInstance() {
@@ -43,18 +38,25 @@ public class AndroidIssueScraper {
     private AndroidIssueScraper() {
     }
 
-    public Pagination getCursor() throws IOException {
-        Document doc = downloadIssuesPage();
-        Pagination pagination = getPagination(doc);
-        return pagination;
+    public static class IssueScraperException extends Exception {
+        IssueScraperException(String message) { super(message); }
     }
 
-    public List<IssuePost> getIssues(ProgressIndicator progressIndicator) throws IOException {
-        Document doc = downloadIssuesPage();
+    public List<IssuePost> getIssues(ProgressIndicator progressIndicator) throws IssueScraperException {
+        Document doc = null;
+        try {
+            doc = downloadIssuesPage();
+        } catch (Exception ex) {
+            throw new IssueScraperException(ex.getLocalizedMessage());
+        }
         Pagination pagination = getPagination(doc);
         ArrayList<IssuePost> issues = scrapeIssuesFromDocument(doc);
         while (pagination.start < pagination.end && pagination.end < pagination.total) {
-            doc = downloadIssuesPage(pagination.end);
+            try {
+                doc = downloadIssuesPage(pagination.end);
+            } catch (IOException ex) {
+
+            }
             issues.addAll(scrapeIssuesFromDocument(doc));
             pagination = getPagination(doc);
             progressIndicator.setFraction((float)issues.size() / (float)pagination.total);
@@ -63,9 +65,14 @@ public class AndroidIssueScraper {
         return issues;
     }
 
-    public List<IssueThread> getIssueDetail(final IssuePost issue) throws IOException {
+    public List<IssueThread> getIssueDetail(final IssuePost issue) throws IssueScraperException {
         String url = issue.getDetailURL();
-        Document doc = Jsoup.connect(url).get();
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(url).get();
+        } catch (Exception ex) {
+            throw new IssueScraperException(ex.getLocalizedMessage());
+        }
         return scrapeDetailFromDocument(doc);
     }
 

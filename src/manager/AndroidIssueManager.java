@@ -15,7 +15,6 @@ import java.util.List;
 public class AndroidIssueManager {
     private static final String ISSUE_DIRECTORY_NAME = ".androidissues";
     private static final String ISSUE_LIST_FILE_NAME = "issues.ser";
-
     private static final String ISSUE_FILE_EXTENSION = ".aitf";
 
     private static AndroidIssueManager sInstance = new AndroidIssueManager();
