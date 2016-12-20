@@ -5,13 +5,12 @@
     <vendor email="mathieu7@gmail.com" url="http://mathieu7.github.io">Matt Miller</vendor>
 
     <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      Unofficial Plugin for the AOSP Issue Tracker. Issues are downloaded and indexed, and can be queried within the editor.<br>
+      <em>Plugin by: Matt Miller</em><br>
+      <em>Icons by: Alex Sisko</em><br>
     ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
     ]]>
     </change-notes>
 
