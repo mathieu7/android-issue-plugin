@@ -28,9 +28,9 @@ public class ClearIssueCacheAction extends AnAction {
                 }
             });
         } catch (Exception ex) {
-            IDEUtil.showNotification("Android Issue Tracker",
-                    "Android Issue Tracker Plugin", "Could not clear issue cache and index: " + ex.getLocalizedMessage(),
-                    NotificationType.ERROR);
+            IDEUtil.displaySimpleNotification(NotificationType.ERROR, e.getProject(),
+                    "Android Issue Tracker Plugin", "Could not clear issue cache and index: " + ex.getLocalizedMessage()
+                    );
         }
     }
 }

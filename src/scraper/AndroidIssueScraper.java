@@ -43,20 +43,11 @@ public class AndroidIssueScraper {
     }
 
     public List<IssuePost> getIssues(ProgressIndicator progressIndicator) throws IssueScraperException {
-        Document doc = null;
-        try {
-            doc = downloadIssuesPage();
-        } catch (Exception ex) {
-            throw new IssueScraperException(ex.getLocalizedMessage());
-        }
+        Document doc = downloadIssuesPage();
         Pagination pagination = getPagination(doc);
         ArrayList<IssuePost> issues = scrapeIssuesFromDocument(doc);
         while (pagination.start < pagination.end && pagination.end < pagination.total) {
-            try {
-                doc = downloadIssuesPage(pagination.end);
-            } catch (IOException ex) {
-
-            }
+            doc = downloadIssuesPage(pagination.end);
             issues.addAll(scrapeIssuesFromDocument(doc));
             pagination = getPagination(doc);
             progressIndicator.setFraction((float)issues.size() / (float)pagination.total);
@@ -67,12 +58,7 @@ public class AndroidIssueScraper {
 
     public List<IssueThread> getIssueDetail(final IssuePost issue) throws IssueScraperException {
         String url = issue.getDetailURL();
-        Document doc = null;
-        try {
-            doc = Jsoup.connect(url).get();
-        } catch (Exception ex) {
-            throw new IssueScraperException(ex.getLocalizedMessage());
-        }
+        Document doc = fetchFromUrl(url);
         return scrapeDetailFromDocument(doc);
     }
 
@@ -82,7 +68,7 @@ public class AndroidIssueScraper {
      * @return Document
      * @throws IOException
      */
-    private Document downloadIssuesPage() throws IOException {
+    private Document downloadIssuesPage() throws IssueScraperException {
         return downloadIssuesPage(0);
     }
 
@@ -93,7 +79,7 @@ public class AndroidIssueScraper {
      * @return Document
      * @throws IOException
      */
-    private Document downloadIssuesPage(int offset) throws IOException {
+    private Document downloadIssuesPage(int offset) throws IssueScraperException {
         return downloadIssuesPage(offset, MAX_RESULTS_PER_PAGE);
     }
 
@@ -105,10 +91,27 @@ public class AndroidIssueScraper {
      * @return Document
      * @throws IOException
      */
-    private Document downloadIssuesPage(int offset, int numResults) throws IOException {
+    private Document downloadIssuesPage(int offset, int numResults) throws IssueScraperException {
         String url = BASE_URL_TEMPLATE + String.format(PAGINATION_PARAMS_TEMPLATE, numResults, offset);
-        return Jsoup.connect(url).get();
+        return fetchFromUrl(url);
     }
+
+    private Document fetchFromUrl(final String url) throws IssueScraperException {
+        int retries = 0;
+        while (retries < MAX_RETRIES) {
+            try {
+                Document doc = Jsoup.connect(url).get();
+                return doc;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.out.println("Retrying "+ retries + "/"+ MAX_RETRIES);
+            }
+            retries++;
+        }
+        throw new IssueScraperException("Could not fetch from "+ url);
+    }
+
+    private static final int MAX_RETRIES = 5;
 
     /**
      * Fetch the pagination information from the current page.

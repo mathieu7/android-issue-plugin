@@ -22,7 +22,10 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 public class IssueIndex {
     private static final Logger sLogger = Logger.getInstance(IssueIndex.class);
-    private static final String sIndexName = "issueIndex";
+    private static final String sIndexName = ".aosp_issue_index";
+    private static final String PATH_FIELD_TAG = "path";
+    private static final String MODIFIED_FIELD_TAG = "modified";
+    private static final String CONTENT_FIELD_TAG = "contents";
 
     private IssueIndex() {
     }
@@ -46,7 +49,6 @@ public class IssueIndex {
         String indexDirectoryPath = getIndexDirectoryPath();
         boolean createIndex = !exists();
         final Path indexDir = Paths.get(indexDirectoryPath);
-
         final Path issueDir = Paths.get(AndroidIssueManager.getIssueDirectory().getAbsolutePath());
 
         if (!Files.isReadable(issueDir)) {
@@ -127,10 +129,6 @@ public class IssueIndex {
         }
     }
 
-    private static final String PATH_FIELD_TAG = "path";
-    private static final String MODIFIED_FIELD_TAG = "modified";
-    private static final String CONTENT_FIELD_TAG = "contents";
-
     /**
      * Execute a search on the index, given a query string.
      *
@@ -162,7 +160,7 @@ public class IssueIndex {
             System.out.println((i + 1) + ". " + d.get("path"));
 
             String text = d.get(CONTENT_FIELD_TAG);
-            System.out.println(text);
+            //System.out.println(text);
         }
 
         // searcher can only be closed when there

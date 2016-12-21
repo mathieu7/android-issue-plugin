@@ -90,12 +90,21 @@ class IssueBrowser extends JPanel implements Disposable {
         });
     }
 
-    void showResult(List<IssueThread> issueThreads, final String queryString) {
+    void showResult(List<String> issueThreads, final String queryString) {
         if (issueThreads == null || issueThreads.isEmpty()) {
             showEmpty();
             return;
         }
 
+        List<CharSequence> lines = new ArrayList<>();
+        lines.addAll(issueThreads);
+
+        List<Integer> highlightLines = new ArrayList<>();
+        // LogicalPosition is zero-indexed, but our code is one-indexed.
+        LogicalPosition position = new LogicalPosition(0, 0);
+        setText(lines, position, highlightLines);
+        //String path = ResultUtils.getBaseName(code.getPath());
+        //editor.setHighlighter(highlighterFactory.createEditorHighlighter(project, path));
 
         /*
         CodeResult code = result.getCode();
@@ -159,16 +168,7 @@ class IssueBrowser extends JPanel implements Disposable {
     public JPanel getPanel() {
         return this;
     }
-    /**
-     * @return The result key for the result currently being shown, if available.
-     */
-    /*@Nullable
-    private String getResultKey() {
-        if (result != null) {
-            return result.getKey();
-        }
-        return null;
-    }*/
+
     /**
      * Sets the text and cursor position in the current {@link EditorEx}.
      * @param lines The lines of code to render.

@@ -1,14 +1,17 @@
 package manager;
 
+import com.google.common.io.Files;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.extensions.PluginId;
+import com.sun.istack.internal.NotNull;
 import model.IssuePost;
 import model.IssueThread;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +79,51 @@ public class AndroidIssueManager {
                 entries.add(post);
             }
             reader.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return entries;
+    }
+
+    /**
+     * Load locally stored issue thread file
+     *
+     * @return List of IssueThread
+     */
+    public static List<IssueThread> getIssueThreadFromId(@NotNull final String issueId) {
+        List<IssueThread> entries = new ArrayList<>();
+        File issueThreadFile = new File(getIssueDirectory(), issueId + ISSUE_FILE_EXTENSION);
+        if (!issueThreadFile.exists()) {
+            return entries;
+        }
+        try {
+            List<String> strings = Files.readLines(issueThreadFile, StandardCharsets.UTF_8);
+            int numLines = strings.size();
+            for (int i = 0; i < numLines; i+= 3) {
+                String author = strings.get(i);
+                String date = strings.get(i+1);
+                String comments = strings.get(i+2);
+                entries.add(new IssueThread(author, date, comments));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return entries;
+    }
+
+    /**
+     * Load locally stored issue thread file
+     *
+     * @return List of IssueThread
+     */
+    public static List<String> getIssueThreadLinesFromId(@NotNull final String issueId) {
+        List<String> entries = new ArrayList<>();
+        File issueThreadFile = new File(getIssueDirectory(), issueId + ISSUE_FILE_EXTENSION);
+        if (!issueThreadFile.exists()) {
+            return entries;
+        }
+        try {
+            entries = Files.readLines(issueThreadFile, StandardCharsets.UTF_8);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -25,7 +25,6 @@ import util.IDEUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class IssueLookupAction extends AnAction {
     private Project mProject;
     private String mToken;
@@ -41,15 +40,16 @@ public class IssueLookupAction extends AnAction {
             int cursorPosition = caret.getOffset();
             PsiElement token = file.findElementAt(cursorPosition);
             // If it's not null, look up
+            //TODO: Check to see if the token is an actual dependency or object.
             if (token != null) {
                 mToken = token.getText();
                 executeSearch();
             } else {
-                IDEUtil.showNotification(
-                        "Android Issue Tracker",
-                        "Failed",
-                        "Invalid token for search",
-                        NotificationType.INFORMATION);
+                IDEUtil.displaySimpleNotification(
+                        NotificationType.ERROR,
+                        mProject,
+                        "Android Issue Tracker Plugin",
+                        "Failed: Invalid token for search");
             }
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -84,6 +84,7 @@ public class IssueLookupAction extends AnAction {
     }
 
     private void executeSearch() {
+        //TODO: Rewrite all this.
         boolean indexed = IssueIndex.exists();
         boolean cacheExists = AndroidIssueManager.getIssueDirectory().exists();
 
@@ -102,7 +103,8 @@ public class IssueLookupAction extends AnAction {
             ex.printStackTrace();
         }
 
-        showSamplesToolWindow(mProject, new ArrayList<IssuePost>());
+        ArrayList<IssuePost> posts = (ArrayList<IssuePost>) AndroidIssueManager.getIssueListFromStorage();
+        showSamplesToolWindow(mProject, posts);
     }
 
     /**

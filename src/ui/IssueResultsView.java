@@ -132,7 +132,7 @@ class IssueResultsView extends JPanel implements Disposable {
         boolean visible = false;
         IssuePost post = getSingleSelectedRow();
         if (post != null) {
-            showInBrowser(post);
+            showInBrowser(post, "");
             visible = true;
         } else {
             browser.showEmpty();
@@ -154,7 +154,7 @@ class IssueResultsView extends JPanel implements Disposable {
     private boolean showInBrowser(@NotNull IssuePost post, final String queryString) {
         Cursor currentCursor = getCursor();
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
-        List<IssueThread> issueThreads = AndroidIssueManager.getIssueThreadById(post.getId());
+        List<String> issueThreads = AndroidIssueManager.getIssueThreadLinesFromId(post.getId());
         browser.showResult(issueThreads, queryString);
         setCursor(currentCursor);
         return true;

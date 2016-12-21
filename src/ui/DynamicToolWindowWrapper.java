@@ -11,6 +11,7 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import model.IssuePost;
 import org.jetbrains.annotations.NotNull;
+import util.AndroidIssuePluginIcons;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class DynamicToolWindowWrapper {
         if (mToolWindow == null) {
             mToolWindow = ToolWindowManager.getInstance(project).registerToolWindow(TOOL_WINDOW_TAG,
                     true, ToolWindowAnchor.BOTTOM);
-            mToolWindow.setIcon(AllIcons.Debugger.Watch);
+            mToolWindow.setIcon(AndroidIssuePluginIcons.STRUCTURE_TOOL_WINDOW);
         }
         mToolWindow.show(null);
 
