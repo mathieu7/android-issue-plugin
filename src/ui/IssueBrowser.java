@@ -19,7 +19,6 @@ import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.util.ui.UIUtil;
-import model.IssueThread;
 import org.jetbrains.annotations.NotNull;
 import java.awt.BorderLayout;
 import java.awt.Color;

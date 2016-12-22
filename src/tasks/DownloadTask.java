@@ -6,16 +6,13 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import manager.AndroidIssueManager;
 import model.IssuePost;
-import model.IssueThread;
+import model.IssueComment;
 import org.jetbrains.annotations.NotNull;
 import scraper.AndroidIssueScraper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Matt on 12/13/2016.
- */
 public class DownloadTask extends Task.Backgroundable {
     /**
      * Logger for debugging purposes
@@ -58,8 +55,8 @@ public class DownloadTask extends Task.Backgroundable {
              * Write those threads to individual files.
              */
             for (IssuePost issue: issues) {
-                List<IssueThread> issueThreads = AndroidIssueScraper.getInstance().getIssueDetail(issue);
-                AndroidIssueManager.writeThreadsToStorage(issue, issueThreads);
+                List<IssueComment> issueComments = AndroidIssueScraper.getInstance().getIssueDetail(issue);
+                AndroidIssueManager.writeThreadsToStorage(issue, issueComments);
             }
         } catch (AndroidIssueScraper.IssueScraperException ex) {
             ex.printStackTrace();

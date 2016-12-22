@@ -7,8 +7,9 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.extensions.PluginId;
 import com.sun.istack.internal.NotNull;
+import index.IssueIndex;
+import model.IssueComment;
 import model.IssuePost;
-import model.IssueThread;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -88,10 +89,10 @@ public class AndroidIssueManager {
     /**
      * Load locally stored issue thread file
      *
-     * @return List of IssueThread
+     * @return List of IssueComment
      */
-    public static List<IssueThread> getIssueThreadFromId(@NotNull final String issueId) {
-        List<IssueThread> entries = new ArrayList<>();
+    public static List<IssueComment> getIssueThreadFromId(@NotNull final String issueId) {
+        List<IssueComment> entries = new ArrayList<>();
         File issueThreadFile = new File(getIssueDirectory(), issueId + ISSUE_FILE_EXTENSION);
         if (!issueThreadFile.exists()) {
             return entries;
@@ -103,7 +104,7 @@ public class AndroidIssueManager {
                 String author = strings.get(i);
                 String date = strings.get(i+1);
                 String comments = strings.get(i+2);
-                entries.add(new IssueThread(author, date, comments));
+                entries.add(new IssueComment(author, date, comments));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -114,7 +115,7 @@ public class AndroidIssueManager {
     /**
      * Load locally stored issue thread file
      *
-     * @return List of IssueThread
+     * @return List of IssueComment
      */
     public static List<String> getIssueThreadLinesFromId(@NotNull final String issueId) {
         List<String> entries = new ArrayList<>();
@@ -165,7 +166,7 @@ public class AndroidIssueManager {
      * @param issue
      * @param threads
      */
-    public static void writeThreadsToStorage(final IssuePost issue, final List<IssueThread> threads) {
+    public static void writeThreadsToStorage(final IssuePost issue, final List<IssueComment> threads) {
         System.out.println("Writing issues to directory: " + ISSUE_DIRECTORY_NAME);
         File issueCacheDirectory = getIssueDirectory();
         File threadFile = new File(issueCacheDirectory, issue.getId() + ISSUE_FILE_EXTENSION);
@@ -176,7 +177,7 @@ public class AndroidIssueManager {
             }
 
             FileWriter fos = new FileWriter(threadFile);
-            for (IssueThread thread : threads) {
+            for (IssueComment thread : threads) {
                 fos.write("Author: " + thread.getAuthor() + "\n");
                 fos.write("Date: " + thread.getDate() + "\n");
                 fos.write("Comment: " + thread.getComment() + "\n");
@@ -187,5 +188,21 @@ public class AndroidIssueManager {
         }
     }
 
-    public static void clearCacheAndIndex() {}
+    public static void clearCacheAndIndex() {
+        System.out.println("Clearing issues and index " + ISSUE_DIRECTORY_NAME);
+        File issueCacheDirectory = getIssueDirectory();
+
+        try {
+            if (issueCacheDirectory.exists()) {
+                if (!issueCacheDirectory.delete() ) {
+                    throw new IOException("Could not delete issue cache directory...");
+                }
+            }
+            IssueIndex.deleteIndex();
+        } catch (IOException | IllegalAccessException ex) {
+            Notifications.Bus.notify(new Notification("Android Issue Tracker",
+                    "Failed", "Could not delete index/issues" +
+                    " reason: " + ex.getLocalizedMessage(), NotificationType.INFORMATION));
+        }
+    }
 }

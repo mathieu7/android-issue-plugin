@@ -1,24 +1,21 @@
 package actions;
 
-import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiImportList;
+import com.intellij.psi.PsiJavaFile;
 import index.IssueIndex;
 import manager.AndroidIssueManager;
 import model.IssuePost;
 import org.jetbrains.annotations.NotNull;
-import tasks.DownloadTask;
-import tasks.IndexingTask;
 import ui.DynamicToolWindowWrapper;
 import util.IDEUtil;
 
@@ -41,6 +38,10 @@ public class IssueLookupAction extends AnAction {
             PsiElement token = file.findElementAt(cursorPosition);
             // If it's not null, look up
             //TODO: Check to see if the token is an actual dependency or object.
+            if (file instanceof PsiJavaFile) {
+                PsiImportList importList = ((PsiJavaFile) file).getImportList();
+                System.out.println(importList.getImportStatements());
+            }
             if (token != null) {
                 mToken = token.getText();
                 executeSearch();
@@ -49,52 +50,25 @@ public class IssueLookupAction extends AnAction {
                         NotificationType.ERROR,
                         mProject,
                         "Android Issue Tracker Plugin",
-                        "Failed: Invalid token for search");
+                        "Failed: Invalid token/file type for search");
             }
         } catch (Exception exc) {
             exc.printStackTrace();
         }
     }
 
-    private DownloadTask.Listener mDownloadListener = new DownloadTask.Listener() {
-        @Override
-        public void onDownloadCompleted(List<IssuePost> issues) {
-            ApplicationManager.getApplication().invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    AndroidIssueManager.writePostsToStorage(issues);
-                }
-            });
-            showSamplesToolWindow(mProject, issues);
-        }
-
-        @Override
-        public void onDownloadFailed(Exception exception) {
-            Notifications.Bus.notify(new Notification("Android Issue Tracker",
-                    "Failed", "Could not refresh issues from Google," +
-                    " reason: "+ exception.getLocalizedMessage(),  NotificationType.INFORMATION));
-        }
-    };
-
-    /**
-     * Download the latest android issues, scraped from code.google.com/android
-     */
-    private void downloadIssues() {
-        ProgressManager.getInstance().run(new DownloadTask(mProject, mDownloadListener));
-    }
-
     private void executeSearch() {
-        //TODO: Rewrite all this.
         boolean indexed = IssueIndex.exists();
         boolean cacheExists = AndroidIssueManager.getIssueDirectory().exists();
 
         if (!cacheExists) {
-            downloadIssues();
+            //TODO: trigger message and quit
             return;
         }
 
         if (!indexed) {
-            ProgressManager.getInstance().run(new IndexingTask(mProject));
+            //TODO: trigger message and quit
+            return;
         }
         try {
             //TODO: get hits from the index, along with issue numbers and threads

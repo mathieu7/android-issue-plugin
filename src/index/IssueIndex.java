@@ -77,6 +77,34 @@ public class IssueIndex {
     }
 
     /**
+     * Delete the existing index
+     * @throws IllegalAccessException
+     * @throws IOException
+     */
+    public static void deleteIndex() throws IllegalAccessException, IOException {
+        String indexDirectoryPath = getIndexDirectoryPath();
+        boolean exists = exists();
+        final Path indexDir = Paths.get(indexDirectoryPath);
+
+        if (!exists) {
+            System.out.println("No index to delete, returning...");
+            return;
+        }
+        try {
+            System.out.println("Deleting index in directory '" + indexDirectoryPath + "'...");
+            FSDirectory dir = FSDirectory.open(indexDir);
+            IndexWriterConfig indexWriterConfig = new IndexWriterConfig(new StandardAnalyzer());
+            indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+            IndexWriter writer = new IndexWriter(dir, indexWriterConfig);
+            writer.deleteAll();
+            writer.commit();
+            writer.close();
+        } catch (IOException io) {
+            io.printStackTrace();
+        }
+    }
+
+    /**
      * Indexes the given file using the given writer, or if a directory is given,
      * recurse over files and directories under the given directory.
      * <p>

@@ -31,20 +31,15 @@ public class IndexingTask extends Task.Backgroundable {
      */
     private static final String PROGRESS_INDICATOR_TITLE = "Indexing Android Issues...";
 
-    /**
-     * Reference to list of Android Issues
-     */
-    private final List<IssuePost> mIssues;
-
     private Listener mListener;
 
     public IndexingTask(Project project) {
         this(project, null);
     }
 
-    public IndexingTask(Project project, final List<IssuePost> issues) {
+    public IndexingTask(Project project, final Listener listener) {
         super(project, PROGRESS_INDICATOR_TITLE, false);
-        mIssues = issues;
+        setListener(listener);
     }
 
     public void setListener(Listener listener) {
@@ -54,12 +49,7 @@ public class IndexingTask extends Task.Backgroundable {
     @Override
     public void run(@NotNull ProgressIndicator progressIndicator) {
         progressIndicator.setIndeterminate(true);
-        if (mIssues != null) {
-            // if we haven't passed issues, write them to storage first.
-            AndroidIssueManager.writePostsToStorage(mIssues);
-        }
-
-        mLogger.debug("No passed issues, indexing current issue directory...");
+        mLogger.debug("Indexing current issue directory...");
         try {
             IssueIndex.indexIssueDirectory();
             if (mListener != null) mListener.onIndexingCompleted();

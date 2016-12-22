@@ -1,14 +1,14 @@
 package model;
 
 /**
- * Pojo representing an issue's thread.
+ * POJO representing an issue's thread.
  */
-public class IssueThread {
+public class IssueComment {
     private String mAuthor;
     private String mDate;
     private String mComment;
 
-    public IssueThread(String author, String date, String comment) {
+    public IssueComment(String author, String date, String comment) {
         mAuthor = author;
         mDate = date;
         mComment = comment;

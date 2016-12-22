@@ -15,7 +15,6 @@ import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import manager.AndroidIssueManager;
 import model.IssuePost;
-import model.IssueThread;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

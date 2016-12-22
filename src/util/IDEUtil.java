@@ -12,8 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Pattern;
 
 public class IDEUtil {
-
-
     private static final Pattern NEWLINE_REGEX = Pattern.compile("\n", Pattern.LITERAL);
 
     public static void displayToolsNotification(@NotNull NotificationType type,

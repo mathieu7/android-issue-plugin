@@ -10,6 +10,9 @@ import com.intellij.util.ui.ConfirmationDialog;
 import manager.AndroidIssueManager;
 import util.IDEUtil;
 
+/**
+ * Simple action to clear the issue caches/indices upon confirmation.
+ */
 public class ClearIssueCacheAction extends AnAction {
 
     @Override
@@ -28,9 +31,11 @@ public class ClearIssueCacheAction extends AnAction {
                 }
             });
         } catch (Exception ex) {
-            IDEUtil.displaySimpleNotification(NotificationType.ERROR, e.getProject(),
-                    "Android Issue Tracker Plugin", "Could not clear issue cache and index: " + ex.getLocalizedMessage()
-                    );
+            IDEUtil.displaySimpleNotification(NotificationType.ERROR,
+                    e.getProject(),
+                    "Android Issue Tracker Plugin",
+                    "Could not clear issue cache and index: " + ex.getLocalizedMessage()
+            );
         }
     }
 }
