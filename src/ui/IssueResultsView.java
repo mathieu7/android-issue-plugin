@@ -6,9 +6,14 @@ import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.*;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.PopupHandler;
@@ -30,7 +35,7 @@ import java.util.List;
 /**
  * IssueResultsView extends JPanel to show the results of searching for issues.
  */
-class  IssueResultsView extends JPanel implements Disposable {
+class IssueResultsView extends JPanel implements Disposable {
     private final Splitter splitter;
     private final IssuePostTable table;
     private final IssueBrowser browser;
@@ -80,6 +85,7 @@ class  IssueResultsView extends JPanel implements Disposable {
         });
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(new OpenURLAction());
+        actionGroup.add(new AnnotateIssueAction());
         ActionManager actionManager = ActionManager.getInstance();
         PopupHandler.installPopupHandler(table,
                 actionGroup, ActionPlaces.USAGE_VIEW_POPUP, actionManager);
@@ -123,6 +129,10 @@ class  IssueResultsView extends JPanel implements Disposable {
         }
     }
 
+    /**
+     * Get the selected issue row.
+     * @return
+     */
     private IssuePost getSingleSelectedRow() {
         ListSelectionModel selectionModel = table.getSelectionModel();
 
@@ -133,6 +143,9 @@ class  IssueResultsView extends JPanel implements Disposable {
         return null;
     }
 
+    /**
+     * Fill the browser with the currently selected issue row thread.
+     */
     private void syncBrowser() {
         boolean visible = false;
         IssuePost post = getSingleSelectedRow();
@@ -158,10 +171,12 @@ class  IssueResultsView extends JPanel implements Disposable {
      * @param String queryString
      * @return Whether the result could be shown.
      */
-    private boolean showInBrowser(@NotNull final IssuePost post, final String queryString) {
+    private boolean showInBrowser(@NotNull final IssuePost post,
+                                  final String queryString) {
         Cursor currentCursor = getCursor();
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
-        List<String> issueThreads = AndroidIssueManager.getIssueThreadLinesFromId(post.getId());
+        List<String> issueThreads =
+                AndroidIssueManager.getIssueThreadLinesFromId(post.getId());
         browser.showResult(issueThreads, queryString);
         setCursor(currentCursor);
         return true;
@@ -197,6 +212,40 @@ class  IssueResultsView extends JPanel implements Disposable {
             if (closeAction != null) {
                 closeAction.run();
             }
+        }
+    }
+
+    private class AnnotateIssueAction extends AnAction {
+        private AnnotateIssueAction() {
+            super("Annotate this issue for code block", null, null);
+        }
+
+        @Override
+        public void actionPerformed(final AnActionEvent e) {
+            IssuePost post = getSingleSelectedRow();
+            if (post == null) return;
+            String url = post.getDetailURL();
+            final String comment = "// " + url;
+
+            //Get all the required data from data keys
+            final Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);
+            final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+            //Access document, caret, and selection
+            final Document document = editor.getDocument();
+
+            CaretModel caretModel = editor.getCaretModel();
+            LogicalPosition logicalPosition = caretModel.getLogicalPosition();
+            VisualPosition visualPosition = caretModel.getVisualPosition();
+            int offset = caretModel.getOffset();
+            //New instance of Runnable to make a replacement
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    document.insertString(offset, comment);
+                }
+            };
+            // Add the issue display
+            WriteCommandAction.runWriteCommandAction(project, runnable);
         }
     }
 }

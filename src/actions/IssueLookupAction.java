@@ -6,6 +6,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
+import com.intellij.openapi.editor.CaretModel;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
@@ -36,9 +38,13 @@ public final class IssueLookupAction extends AnAction {
             Caret caret = e.getData(CommonDataKeys.CARET);
             mProject = e.getProject();
             PsiFile file = e.getData(CommonDataKeys.PSI_FILE);
+
+            final Editor editor = e.getData(CommonDataKeys.EDITOR);
+            CaretModel caretModel = editor.getCaretModel();
+            int offset = caretModel.getOffset();
             // Find the token under the caret when the user triggered this action.
-            int cursorPosition = caret.getOffset();
-            PsiElement token = file.findElementAt(cursorPosition);
+            //int cursorPosition = caret.getOffset();
+            PsiElement token = file.findElementAt(offset);
             // If it's not null, look up
             //TODO: Check to see if the token is an actual dependency or object.
             if (file instanceof PsiJavaFile) {
@@ -65,23 +71,28 @@ public final class IssueLookupAction extends AnAction {
         boolean cacheExists = AndroidIssueManager.getIssueDirectory().exists();
 
         if (!cacheExists) {
-            //TODO: trigger message and quit
+            IDEUtil.displayToolsNotification(NotificationType.ERROR,
+                    mProject,
+                    "Android Issue Tracker Plugin",
+                    "No stored issues");
             return;
         }
 
         if (!indexed) {
-            //TODO: trigger message and quit
+            IDEUtil.displayToolsNotification(NotificationType.ERROR,
+                    mProject,
+                    "Android Issue Tracker Plugin",
+                    "No indexed issues");
             return;
         }
+        ArrayList<String> issueIds = null;
         try {
-            //TODO: get hits from the index, along with issue numbers and threads
-            IssueIndex.searchForTerm(mToken);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            issueIds = IssueIndex.searchForTerm(mToken);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
         ArrayList<IssuePost> posts = (ArrayList<IssuePost>)
-                AndroidIssueManager.getIssueListFromStorage();
+                AndroidIssueManager.getFilteredIssueList(issueIds);
         showSamplesToolWindow(mProject, posts);
     }
 
@@ -89,7 +100,7 @@ public final class IssueLookupAction extends AnAction {
      * Shows the list of results in a toolwindow panel.
      *
      * @param project The project.
-     * @param issues List of Android Issues to display
+     * @param issues  List of Android Issues to display
      */
     private void showSamplesToolWindow(@NotNull final Project project,
                                        final List<IssuePost> issues) {

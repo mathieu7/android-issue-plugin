@@ -118,7 +118,8 @@ public final class AndroidIssueScraper {
      * @return
      * @throws IssueScraperException
      */
-    public List<IssuePost> getIssues(ProgressIndicator progressIndicator) throws IssueScraperException {
+    public List<IssuePost> getIssues(ProgressIndicator progressIndicator)
+            throws IssueScraperException {
         Document doc = downloadIssuesPage();
         Pagination pagination = getPagination(doc);
         ArrayList<IssuePost> issues = scrapeIssuesFromDocument(doc);
@@ -126,7 +127,8 @@ public final class AndroidIssueScraper {
             doc = downloadIssuesPage(pagination.end);
             issues.addAll(scrapeIssuesFromDocument(doc));
             pagination = getPagination(doc);
-            progressIndicator.setFraction((float) issues.size() / (float) pagination.total);
+            progressIndicator.setFraction(
+                    (float) issues.size() / (float) pagination.total);
             progressIndicator.setText2("("+ issues.size() + " out of " + pagination.total + ")");
         }
         return issues;
@@ -138,7 +140,8 @@ public final class AndroidIssueScraper {
      * @return
      * @throws IssueScraperException
      */
-    public List<IssueComment> getIssueDetail(final IssuePost issue) throws IssueScraperException {
+    public List<IssueComment> getIssueDetail(final IssuePost issue)
+            throws IssueScraperException {
         String url = issue.getDetailURL();
         Document doc = fetchFromUrl(url);
         return scrapeDetailFromDocument(doc);

@@ -23,7 +23,7 @@ public final class DownloadTask extends Task.Backgroundable {
     private Logger mLogger = Logger.getInstance(DownloadTask.class);
 
     public interface Listener {
-        void onDownloadCompleted(List<IssuePost> issues);
+        void onDownloadCompleted();
         void onDownloadFailed(Exception exception);
     }
 
@@ -49,19 +49,29 @@ public final class DownloadTask extends Task.Backgroundable {
         progressIndicator.setText(PROGRESS_INDICATOR_TITLE);
         progressIndicator.setIndeterminate(false);
         try {
+            // First, download all the issue posts
             ArrayList<IssuePost> issues =
                     (ArrayList<IssuePost>) AndroidIssueScraper.getInstance().getIssues(progressIndicator);
-            if (mListener != null) {
-                mListener.onDownloadCompleted(issues);
-            }
-            /**
-             * Iterate over the issue list and download the separate threads.
-             * Write those threads to individual files.
-             */
+
+            // Second, write all the posts to storage
+            AndroidIssueManager.writePostsToStorage(issues);
+
+            // Then, For each post, download the issue thread associated by id
+            // and write to storage
             for (IssuePost issue: issues) {
-                List<IssueComment> issueComments = AndroidIssueScraper.getInstance().getIssueDetail(issue);
-                AndroidIssueManager.writeThreadsToStorage(issue, issueComments);
+                System.out.println("Writing issue thread to storage: "
+                        + issue.getId());
+                List<IssueComment> issueComments =
+                        AndroidIssueScraper.getInstance().getIssueDetail(issue);
+                AndroidIssueManager.writeThreadToStorage(
+                        issue.getId(), issueComments);
             }
+
+            // notify observer that we've finished.
+            if (mListener != null) {
+                mListener.onDownloadCompleted();
+            }
+
         } catch (AndroidIssueScraper.IssueScraperException ex) {
             ex.printStackTrace();
             progressIndicator.setText(DOWNLOAD_FAILED_STRING);

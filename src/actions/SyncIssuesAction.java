@@ -27,19 +27,25 @@ public final class SyncIssuesAction extends AnAction implements IndexingTask.Lis
     }
 
     @Override
-    public void onDownloadCompleted(final List<IssuePost> issues) {
+    public void onDownloadCompleted() {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
-                AndroidIssueManager.writePostsToStorage(issues);
-                ProgressManager.getInstance().run(new IndexingTask(mProject, SyncIssuesAction.this));
+                ProgressManager.getInstance().run(
+                        new IndexingTask(mProject, SyncIssuesAction.this));
             }
         });
     }
 
     @Override
     public void onIndexingCompleted() {
-        Messages.showInfoMessage(mProject, "Indexing completed", "Android Issue Tracker Plugin");
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                Messages.showInfoMessage(mProject,
+                        "Indexing completed", "Android Issue Tracker Plugin");
+            }
+        });
     }
 
     @Override
@@ -57,6 +63,4 @@ public final class SyncIssuesAction extends AnAction implements IndexingTask.Lis
                 "Could not refresh issues from Google,"
                         + " reason: " + exception.getLocalizedMessage());
     }
-
-
 }

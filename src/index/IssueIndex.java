@@ -16,6 +16,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 
 /**
  * File-Based Index Extension for Google Android Issues files (using Lucene).
@@ -141,9 +142,12 @@ public final class IssueIndex {
      * @param lastModified
      * @throws IOException
      */
-    private static void indexFile(IndexWriter writer, Path file, long lastModified) throws IOException {
+    private static void indexFile(final IndexWriter writer,
+                                  final Path file,
+                                  final long lastModified) throws IOException {
         Document doc = new Document();
-        Field pathField = new StringField(PATH_FIELD_TAG, file.toString(), Field.Store.YES);
+        Field pathField = new StringField(PATH_FIELD_TAG,
+                file.toString(), Field.Store.YES);
         doc.add(pathField);
         doc.add(new LongPoint(MODIFIED_FIELD_TAG, lastModified));
         String content = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
@@ -157,42 +161,45 @@ public final class IssueIndex {
         }
     }
 
+    private static final int MIN_NUMBER_OF_HITS = 10;
+
     /**
      * Execute a search on the index, given a query string.
-     *
      * @param queryString
+     * @return list of issue ids as results.
+     * @throws ParseException
+     * @throws IOException
      */
-    public static void searchForTerm(@NotNull final String queryString) throws ParseException, IOException {
+    public static ArrayList<String> searchForTerm(@NotNull final String queryString)
+            throws ParseException, IOException {
         String indexPath = getIndexDirectoryPath();
-        int hitsPerPage = 10;
-
         IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(indexPath)));
         IndexSearcher searcher = new IndexSearcher(reader);
         Analyzer analyzer = new StandardAnalyzer();
 
         QueryParser parser = new QueryParser(CONTENT_FIELD_TAG, analyzer);
         Query query = parser.parse(queryString);
-        sLogger.debug("Searching for: " + query.toString(CONTENT_FIELD_TAG));
+        System.out.println("Searching for: " + query.toString(CONTENT_FIELD_TAG));
 
-
-        TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage);
+        TopScoreDocCollector collector = TopScoreDocCollector.create(MIN_NUMBER_OF_HITS);
         searcher.search(query, collector);
         ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
         // 4. display term positions, and term indexes
+        ArrayList<String> issueIds = new ArrayList<>();
         System.out.println("Found " + hits.length + " hits.");
         for (int i = 0; i < hits.length; i++) {
             int docId = hits[i].doc;
-
             Document d = searcher.doc(docId);
-            System.out.println((i + 1) + ". " + d.get("path"));
-
-            String text = d.get(CONTENT_FIELD_TAG);
-            //System.out.println(text);
+            System.out.println((i + 1) + ". " + d.get(PATH_FIELD_TAG));
+            String path = d.get(PATH_FIELD_TAG);
+            String issueId = AndroidIssueManager.getIssueIdFromPath(path);
+            issueIds.add(issueId);
         }
 
         // searcher can only be closed when there
         // is no need to access the documents any more.
         reader.close();
+        return issueIds;
     }
 }

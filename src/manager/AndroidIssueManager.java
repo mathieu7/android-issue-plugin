@@ -7,12 +7,12 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.extensions.PluginId;
 import com.sun.istack.internal.NotNull;
+import com.sun.jna.platform.win32.Secur32;
 import index.IssueIndex;
 import model.IssueComment;
 import model.IssuePost;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import util.IDEUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -80,18 +80,40 @@ public final class AndroidIssueManager {
         if (!issueListFile.exists()) {
             return entries;
         }
+        ObjectInputStream reader = null;
         try {
-            ObjectInputStream reader = new ObjectInputStream(
+            reader = new ObjectInputStream(
                     new FileInputStream(issueListFile));
             IssuePost post;
             while ((post = (IssuePost) reader.readObject()) != null) {
                 entries.add(post);
             }
-            reader.close();
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ioex) {
+                    ioex.printStackTrace();
+                }
+            }
         }
         return entries;
+    }
+
+    public static List<IssuePost> getFilteredIssueList(final ArrayList<String> issueIds) {
+        if (issueIds == null) {
+            return getIssueListFromStorage();
+        }
+        ArrayList<IssuePost> filteredPosts = new ArrayList<>();
+        ArrayList<IssuePost> allPosts = (ArrayList<IssuePost>) getIssueListFromStorage();
+        for (IssuePost post : allPosts) {
+            if (issueIds.contains(post.getId())) {
+                filteredPosts.add(post);
+            }
+        }
+        return filteredPosts;
     }
 
     /**
@@ -175,51 +197,112 @@ public final class AndroidIssueManager {
 
     /**
      * Write issue thread to storage (separate file for easy indexing)
-     * @param issue
+     * @param issueId
      * @param threads
      */
-    public static void writeThreadsToStorage(final IssuePost issue,
+    public static void writeThreadToStorage(@NotNull final String issueId,
                                              final List<IssueComment> threads) {
-        LOG.debug("Writing issues to directory: " + ISSUE_DIRECTORY_NAME);
+        LOG.debug("Writing issue #" + issueId + " thread to directory: "
+                + ISSUE_DIRECTORY_NAME);
         File issueCacheDirectory = getIssueDirectory();
-        File threadFile = new File(issueCacheDirectory, issue.getId() + ISSUE_FILE_EXTENSION);
+        File threadFile = new File(issueCacheDirectory, issueId + ISSUE_FILE_EXTENSION);
+        FileWriter fos = null;
         try {
             //create the issue thread file if it doesn't exist.
             if (!threadFile.exists()) {
-                LOG.debug("Thread file created for issue "
-                        + issue.getId()
+                LOG.debug("Thread file created for issue #"
+                        + issueId
                         + " : "
                         + threadFile.createNewFile());
+            } else {
+                LOG.debug("Updating file created for issue #"
+                        + issueId);
             }
 
-            FileWriter fos = new FileWriter(threadFile);
+            fos = new FileWriter(threadFile);
             for (IssueComment thread : threads) {
                 fos.write("Author: " + thread.getAuthor() + "\n");
                 fos.write("Date: " + thread.getDate() + "\n");
                 fos.write("Comment: " + thread.getComment() + "\n");
             }
-            fos.close();
+
         } catch (IOException ex) {
             ex.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
     }
 
+    /**
+     * Delete the cached issue files (.aitf files) and issue index file.
+     */
     public static void clearCacheAndIndex() {
         LOG.debug("Clearing issues and index " + ISSUE_DIRECTORY_NAME);
         File issueCacheDirectory = getIssueDirectory();
-
         try {
-            if (issueCacheDirectory.exists()) {
-                if (!issueCacheDirectory.delete() ) {
-                    throw new IOException("Could not delete issue cache directory");
-                }
-            }
+            deleteDirectory(issueCacheDirectory);
             IssueIndex.deleteIndex();
         } catch (IOException | IllegalAccessException ex) {
+            ex.printStackTrace();
             //TODO: Use IDEUtil methods
             Notifications.Bus.notify(new Notification("Android Issue Tracker",
                     "Failed", "Could not delete index/issues" +
                     " reason: " + ex.getLocalizedMessage(), NotificationType.INFORMATION));
+        }
+    }
+
+    public static String getIssueIdFromPath(final String path) {
+        File file = new File(path);
+        return file.getName().replace(ISSUE_FILE_EXTENSION, "");
+    }
+
+    /**
+     * Utility method to delete a directory.
+     * @param directory
+     * @return
+     */
+    private static boolean deleteDirectory(final File directory) {
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            if (null != files) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        deleteDirectory(file);
+                    }
+                    else {
+                        file.delete();
+                    }
+                }
+            }
+        }
+        return directory.delete();
+    }
+
+    /**
+     * Get line numbers from index file
+     * @param filepath
+     * @param key
+     */
+    public static void printLines(final String filepath, final String key)
+            throws IOException {
+        int counter = 1;
+        String line;
+        File file = new File(filepath);
+        List<String> entries;
+        entries = Files.readLines(file, StandardCharsets.UTF_8);
+
+        for (String entry : entries)
+        {
+            if (entry.contains(key)) {
+                System.out.println("\t"+ counter + ": " + entry);
+            }
+            counter++;
         }
     }
 }
