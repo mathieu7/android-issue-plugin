@@ -18,9 +18,9 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
- * File-Based Index Extension for Google Android Issues files (using Lucene)
+ * File-Based Index Extension for Google Android Issues files (using Lucene).
  */
-public class IssueIndex {
+public final class IssueIndex {
     private static final Logger sLogger = Logger.getInstance(IssueIndex.class);
     private static final String sIndexName = ".aosp_issue_index";
     private static final String PATH_FIELD_TAG = "path";

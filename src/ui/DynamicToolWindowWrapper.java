@@ -1,6 +1,5 @@
 package ui;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -15,15 +14,15 @@ import util.AndroidIssuePluginIcons;
 
 import java.util.List;
 
-public class DynamicToolWindowWrapper {
+public final class DynamicToolWindowWrapper {
     private static final String TOOL_WINDOW_TAG = "Find Android Issues";
     private ToolWindow mToolWindow;
 
-    public static DynamicToolWindowWrapper getInstance(Project project) {
+    public static DynamicToolWindowWrapper getInstance(final Project project) {
         return ServiceManager.getService(project, DynamicToolWindowWrapper.class);
     }
 
-    public ToolWindow getToolWindow(@NotNull Project project, @NotNull final String symbol,
+    public ToolWindow getToolWindow(@NotNull final Project project, @NotNull final String symbol,
                                      final List<IssuePost> results) {
         if (mToolWindow == null) {
             mToolWindow = ToolWindowManager.getInstance(project).registerToolWindow(TOOL_WINDOW_TAG,

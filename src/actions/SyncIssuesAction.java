@@ -15,16 +15,19 @@ import util.IDEUtil;
 
 import java.util.List;
 
-public class SyncIssuesAction extends AnAction implements IndexingTask.Listener, DownloadTask.Listener {
+/**
+ * Action to sync the current state of Android Issues with the plugin's version.
+ */
+public final class SyncIssuesAction extends AnAction implements IndexingTask.Listener, DownloadTask.Listener {
     private Project mProject;
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(final AnActionEvent e) {
         mProject = e.getProject();
         ProgressManager.getInstance().run(new DownloadTask(mProject, this));
     }
 
     @Override
-    public void onDownloadCompleted(List<IssuePost> issues) {
+    public void onDownloadCompleted(final List<IssuePost> issues) {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -40,19 +43,19 @@ public class SyncIssuesAction extends AnAction implements IndexingTask.Listener,
     }
 
     @Override
-    public void onIndexingFailed(String reason) {
+    public void onIndexingFailed(final String reason) {
         IDEUtil.displaySimpleNotification(NotificationType.ERROR, null,
                 "Android Issues Plugin",
-                "Could not index issues from Google," +
-                        " reason: "+reason);
+                "Could not index issues from Google,"
+                        + " reason: " + reason);
     }
 
     @Override
-    public void onDownloadFailed(Exception exception) {
+    public void onDownloadFailed(final Exception exception) {
         IDEUtil.displaySimpleNotification(NotificationType.INFORMATION, null,
                 "Android Issues Plugin",
-                "Could not refresh issues from Google," +
-                        " reason: "+ exception.getLocalizedMessage());
+                "Could not refresh issues from Google,"
+                        + " reason: " + exception.getLocalizedMessage());
     }
 
 

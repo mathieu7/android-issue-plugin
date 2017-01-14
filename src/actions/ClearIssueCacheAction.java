@@ -13,12 +13,13 @@ import util.IDEUtil;
 /**
  * Simple action to clear the issue caches/indices upon confirmation.
  */
-public class ClearIssueCacheAction extends AnAction {
+public final class ClearIssueCacheAction extends AnAction {
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(final AnActionEvent e) {
         try {
-            boolean result = ConfirmationDialog.requestForConfirmation(VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION,
+            boolean result = ConfirmationDialog.requestForConfirmation(
+                    VcsShowConfirmationOption.STATIC_SHOW_CONFIRMATION,
                     e.getProject(),
                     "Confirm clear android issue cache/index?",
                     "Confirm Dialog",
@@ -34,7 +35,8 @@ public class ClearIssueCacheAction extends AnAction {
             IDEUtil.displaySimpleNotification(NotificationType.ERROR,
                     e.getProject(),
                     "Android Issue Tracker Plugin",
-                    "Could not clear issue cache and index: " + ex.getLocalizedMessage()
+                    "Could not clear issue cache and index: "
+                            + ex.getLocalizedMessage()
             );
         }
     }

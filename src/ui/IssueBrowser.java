@@ -35,17 +35,35 @@ import javax.swing.JPanel;
  * Editor panel that displays the current issue thread, and highlights the relevant search details.
  */
 class IssueBrowser extends JPanel implements Disposable {
+    /**
+     * Highlight Background color
+     */
     private static final Color HIGHLIGHT_BACKGROUND = UIUtil.getTreeUnfocusedSelectionBackground();
+    /**
+     * Attributes for Highlighting
+     */
     private static final TextAttributes HIGHLIGHT_ATTRIBUTES =
             new TextAttributes(null, HIGHLIGHT_BACKGROUND, null, EffectType.SEARCH_MATCH, Font.BOLD);
+    /**
+     * Whitespace regex
+     */
     private static final Pattern WHITESPACE_PREFIX = Pattern.compile("^\\s*");
+
+    /**
+     * Editor
+     */
     private final EditorEx editor;
+
+    /**
+     * Document we're highlighting
+     */
     private final Document document;
+
     private final Project project;
     private final EditorHighlighterFactory highlighterFactory;
 
 
-    IssueBrowser(@NotNull Project project) {
+    IssueBrowser(@NotNull final Project project) {
         super(new BorderLayout());
         this.project = project;
         highlighterFactory = EditorHighlighterFactory.getInstance();
@@ -61,7 +79,7 @@ class IssueBrowser extends JPanel implements Disposable {
         gutter.revalidateMarkup();
         editor.getSelectionModel().addSelectionListener(new SelectionListener() {
             @Override
-            public void selectionChanged(SelectionEvent e) {
+            public void selectionChanged(final SelectionEvent e) {
                 TextRange range = e.getNewRange();
                 if (range.isEmpty()) {
                     return;
@@ -89,7 +107,7 @@ class IssueBrowser extends JPanel implements Disposable {
         });
     }
 
-    void showResult(List<String> issueThreads, final String queryString) {
+    void showResult(final List<String> issueThreads, final String queryString) {
         if (issueThreads == null || issueThreads.isEmpty()) {
             showEmpty();
             return;
@@ -203,7 +221,7 @@ class IssueBrowser extends JPanel implements Disposable {
      * @return Formatted source code.
      */
     @NotNull
-    public static List<String> formatCode(@NotNull List<String> input) {
+    public static List<String> formatCode(final @NotNull List<String> input) {
         boolean knownPrefix = false;
         String prefix = "";
         for (String line : input) {

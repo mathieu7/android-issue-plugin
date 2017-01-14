@@ -22,12 +22,15 @@ import util.IDEUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IssueLookupAction extends AnAction {
+/**
+ * Action to lookup an issue related to Android by class name.
+ */
+public final class IssueLookupAction extends AnAction {
     private Project mProject;
     private String mToken;
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
+    public void actionPerformed(final AnActionEvent e) {
         try {
             // Get the caret, the current project, and the current open file.
             Caret caret = e.getData(CommonDataKeys.CARET);
@@ -77,7 +80,8 @@ public class IssueLookupAction extends AnAction {
             ex.printStackTrace();
         }
 
-        ArrayList<IssuePost> posts = (ArrayList<IssuePost>) AndroidIssueManager.getIssueListFromStorage();
+        ArrayList<IssuePost> posts = (ArrayList<IssuePost>)
+                AndroidIssueManager.getIssueListFromStorage();
         showSamplesToolWindow(mProject, posts);
     }
 
@@ -85,14 +89,17 @@ public class IssueLookupAction extends AnAction {
      * Shows the list of results in a toolwindow panel.
      *
      * @param project The project.
-     * @param issues List of SearchResult objects from cloud endpoint generated lib.
+     * @param issues List of Android Issues to display
      */
-    private void showSamplesToolWindow(@NotNull final Project project, final List<IssuePost> issues) {
+    private void showSamplesToolWindow(@NotNull final Project project,
+                                       final List<IssuePost> issues) {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
-                DynamicToolWindowWrapper toolWindowWrapper = DynamicToolWindowWrapper.getInstance(project);
-                ToolWindow toolWindow = toolWindowWrapper.getToolWindow(project, mToken, issues);
+                DynamicToolWindowWrapper toolWindowWrapper =
+                        DynamicToolWindowWrapper.getInstance(project);
+                ToolWindow toolWindow =
+                        toolWindowWrapper.getToolWindow(project, mToken, issues);
                 toolWindow.show(null);
             }
         });

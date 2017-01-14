@@ -10,13 +10,19 @@ import com.sun.istack.internal.NotNull;
 import index.IssueIndex;
 import model.IssueComment;
 import model.IssuePost;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import util.IDEUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AndroidIssueManager {
+public final class AndroidIssueManager {
+    private static final Log LOG = LogFactory.getLog(
+            AndroidIssueManager.class);
+
     private static final String ISSUE_DIRECTORY_NAME = ".androidissues";
     private static final String ISSUE_LIST_FILE_NAME = "issues.ser";
     private static final String ISSUE_FILE_EXTENSION = ".aitf";
@@ -31,7 +37,7 @@ public class AndroidIssueManager {
     }
 
     /**
-     * The plugin identifier
+     * The plugin identifier.
      */
     private static final String PLUGIN_ID = "com.miller.androidissuetracker";
 
@@ -45,7 +51,8 @@ public class AndroidIssueManager {
     }
 
     /**
-     * Utility method to get the issue directory (where issues and threads are stored)
+     * Utility method to get the issue directory
+     * (where issues and threads are stored)
      *
      * @return File
      */
@@ -74,9 +81,10 @@ public class AndroidIssueManager {
             return entries;
         }
         try {
-            ObjectInputStream reader = new ObjectInputStream(new FileInputStream(issueListFile));
+            ObjectInputStream reader = new ObjectInputStream(
+                    new FileInputStream(issueListFile));
             IssuePost post;
-            while ((post = (IssuePost)reader.readObject()) != null) {
+            while ((post = (IssuePost) reader.readObject()) != null) {
                 entries.add(post);
             }
             reader.close();
@@ -93,12 +101,12 @@ public class AndroidIssueManager {
      */
     public static List<IssueComment> getIssueThreadFromId(@NotNull final String issueId) {
         List<IssueComment> entries = new ArrayList<>();
-        File issueThreadFile = new File(getIssueDirectory(), issueId + ISSUE_FILE_EXTENSION);
-        if (!issueThreadFile.exists()) {
+        File threadFile = new File(getIssueDirectory(), issueId + ISSUE_FILE_EXTENSION);
+        if (!threadFile.exists()) {
             return entries;
         }
         try {
-            List<String> strings = Files.readLines(issueThreadFile, StandardCharsets.UTF_8);
+            List<String> strings = Files.readLines(threadFile, StandardCharsets.UTF_8);
             int numLines = strings.size();
             for (int i = 0; i < numLines; i+= 3) {
                 String author = strings.get(i);
@@ -119,12 +127,12 @@ public class AndroidIssueManager {
      */
     public static List<String> getIssueThreadLinesFromId(@NotNull final String issueId) {
         List<String> entries = new ArrayList<>();
-        File issueThreadFile = new File(getIssueDirectory(), issueId + ISSUE_FILE_EXTENSION);
-        if (!issueThreadFile.exists()) {
+        File threadFile = new File(getIssueDirectory(), issueId + ISSUE_FILE_EXTENSION);
+        if (!threadFile.exists()) {
             return entries;
         }
         try {
-            entries = Files.readLines(issueThreadFile, StandardCharsets.UTF_8);
+            entries = Files.readLines(threadFile, StandardCharsets.UTF_8);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -136,25 +144,29 @@ public class AndroidIssueManager {
      * @param posts
      */
     public static void writePostsToStorage(final List<IssuePost> posts) {
-        System.out.println("Writing issues to directory: " + ISSUE_DIRECTORY_NAME);
+        LOG.debug("Writing issues to directory: " + ISSUE_DIRECTORY_NAME);
         File issueCacheDirectory = getIssueDirectory();
         File issueListFile = new File(issueCacheDirectory, ISSUE_LIST_FILE_NAME);
         try {
             if (!issueCacheDirectory.exists()) {
                 if (!issueCacheDirectory.mkdir()) {
-                    throw new IOException("Could not create issue cache directory...");
+                    throw new IOException(
+                            "Could not create issue cache directory...");
                 }
             }
             if (!issueListFile.exists()) {
-                System.out.println("Issue listing file created: " + issueListFile.createNewFile());
+                LOG.debug("Issue listing file created: "
+                        + issueListFile.createNewFile());
             }
 
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(issueListFile));
+            ObjectOutputStream oos = new ObjectOutputStream(
+                    new FileOutputStream(issueListFile));
             for (IssuePost post : posts) {
                 oos.writeObject(post);
             }
             oos.close();
         } catch (IOException ex) {
+            //TODO: Use IDEUtil here
             Notifications.Bus.notify(new Notification("Android Issue Tracker",
                     "Failed", "Could not write issues locally" +
                     " reason: " + ex.getLocalizedMessage(), NotificationType.INFORMATION));
@@ -166,14 +178,18 @@ public class AndroidIssueManager {
      * @param issue
      * @param threads
      */
-    public static void writeThreadsToStorage(final IssuePost issue, final List<IssueComment> threads) {
-        System.out.println("Writing issues to directory: " + ISSUE_DIRECTORY_NAME);
+    public static void writeThreadsToStorage(final IssuePost issue,
+                                             final List<IssueComment> threads) {
+        LOG.debug("Writing issues to directory: " + ISSUE_DIRECTORY_NAME);
         File issueCacheDirectory = getIssueDirectory();
         File threadFile = new File(issueCacheDirectory, issue.getId() + ISSUE_FILE_EXTENSION);
         try {
             //create the issue thread file if it doesn't exist.
             if (!threadFile.exists()) {
-                System.out.println("Thread file created for issue "+ issue.getId() + " : " + threadFile.createNewFile());
+                LOG.debug("Thread file created for issue "
+                        + issue.getId()
+                        + " : "
+                        + threadFile.createNewFile());
             }
 
             FileWriter fos = new FileWriter(threadFile);
@@ -189,17 +205,18 @@ public class AndroidIssueManager {
     }
 
     public static void clearCacheAndIndex() {
-        System.out.println("Clearing issues and index " + ISSUE_DIRECTORY_NAME);
+        LOG.debug("Clearing issues and index " + ISSUE_DIRECTORY_NAME);
         File issueCacheDirectory = getIssueDirectory();
 
         try {
             if (issueCacheDirectory.exists()) {
                 if (!issueCacheDirectory.delete() ) {
-                    throw new IOException("Could not delete issue cache directory...");
+                    throw new IOException("Could not delete issue cache directory");
                 }
             }
             IssueIndex.deleteIndex();
         } catch (IOException | IllegalAccessException ex) {
+            //TODO: Use IDEUtil methods
             Notifications.Bus.notify(new Notification("Android Issue Tracker",
                     "Failed", "Could not delete index/issues" +
                     " reason: " + ex.getLocalizedMessage(), NotificationType.INFORMATION));

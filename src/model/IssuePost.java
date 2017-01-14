@@ -6,7 +6,8 @@ import java.io.Serializable;
  * Class representing an android issue listing.
  */
 public class IssuePost implements Serializable {
-    private static final String DETAIL_URL_TEMPLATE = "https://code.google.com/p/android/issues/detail?id=%s";
+    private static final String DETAIL_URL_TEMPLATE =
+            "https://code.google.com/p/android/issues/detail?id=%s";
     public enum Column {
         ID,
         STATUS,
@@ -61,7 +62,7 @@ public class IssuePost implements Serializable {
             mInstance = new IssuePost();
         }
 
-        public Builder addValue(Column column, String text) {
+        public Builder addValue(final Column column, final String text) {
             switch (column) {
                 case ID:
                     mInstance.mId = text;

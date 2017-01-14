@@ -13,15 +13,18 @@ import scraper.AndroidIssueScraper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DownloadTask extends Task.Backgroundable {
+/**
+ * Task to download issues from Android Issue Tracker
+ */
+public final class DownloadTask extends Task.Backgroundable {
     /**
-     * Logger for debugging purposes
+     * Logger for debugging purposes.
      */
     private Logger mLogger = Logger.getInstance(DownloadTask.class);
 
     public interface Listener {
-        void onDownloadCompleted(final List<IssuePost> issues);
-        void onDownloadFailed(final Exception exception);
+        void onDownloadCompleted(List<IssuePost> issues);
+        void onDownloadFailed(Exception exception);
     }
 
     /**
@@ -32,12 +35,12 @@ public class DownloadTask extends Task.Backgroundable {
 
     private Listener mListener;
 
-    public DownloadTask(Project project, final Listener listener) {
+    public DownloadTask(final Project project, final Listener listener) {
         super(project, PROGRESS_INDICATOR_TITLE, false);
         setListener(listener);
     }
 
-    public void setListener(Listener listener) {
+    public void setListener(final Listener listener) {
         mListener = listener;
     }
 
@@ -46,7 +49,8 @@ public class DownloadTask extends Task.Backgroundable {
         progressIndicator.setText(PROGRESS_INDICATOR_TITLE);
         progressIndicator.setIndeterminate(false);
         try {
-            ArrayList<IssuePost> issues = (ArrayList<IssuePost>) AndroidIssueScraper.getInstance().getIssues(progressIndicator);
+            ArrayList<IssuePost> issues =
+                    (ArrayList<IssuePost>) AndroidIssueScraper.getInstance().getIssues(progressIndicator);
             if (mListener != null) {
                 mListener.onDownloadCompleted(issues);
             }

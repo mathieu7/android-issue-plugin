@@ -3,6 +3,8 @@ package scraper;
 import com.intellij.openapi.progress.ProgressIndicator;
 import model.IssueComment;
 import model.IssuePost;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -15,10 +17,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AndroidIssueScraper {
+public final class AndroidIssueScraper {
+    private static final Log LOG = LogFactory.getLog(AndroidIssueScraper.class);
     // Our base url to fetch issue listings from.
-    private static final String BASE_URL_TEMPLATE = "https://code.google.com/p/android/issues/list?can=2&q=assigned" +
-            "&colspec=ID%20Status%20Priority%20Owner%20Summary%20Stars%20Reporter%20Opened%20Component%20Type%20Version&cells=tiles";
+    private static final String BASE_URL_TEMPLATE =
+            "https://code.google.com/p/android/issues/list?can=2&q=assigned"
+            + "&colspec=ID%20Status%20Priority%20Owner%20Summary"
+            + "%20Stars%20Reporter%20Opened%20Component%20Type%20Version&cells=tiles";
     // Pagination parameters
     private static final String PAGINATION_PARAMS_TEMPLATE = "&num=%d&start=%d";
     private static final String PAGINATION_REGEX = ".*\\s*(\\d+)\\s*-\\s*(\\d+)\\s*of\\s*(\\d+).*";
@@ -39,7 +44,7 @@ public class AndroidIssueScraper {
      * @param document
      * @return Pagination
      */
-    private static Pagination getPagination(@NotNull Document document) {
+    private static Pagination getPagination(@NotNull final Document document) {
         Element paginationDiv = document.select("div.pagination").first();
         if (paginationDiv == null) {
             throw new IllegalStateException("Pagination Div missing from document");
@@ -63,7 +68,7 @@ public class AndroidIssueScraper {
      * @param document
      * @return list of IssuePosts
      */
-    private static ArrayList<IssuePost> scrapeIssuesFromDocument(@NotNull Document document) {
+    private static ArrayList<IssuePost> scrapeIssuesFromDocument(@NotNull final Document document) {
         Element listingTable = document.select("table[id=resultstable]").first();
         ArrayList<IssuePost> issueList = new ArrayList<>();
         Elements rows = listingTable.getElementsByTag("tr");
@@ -74,7 +79,7 @@ public class AndroidIssueScraper {
             for (int index = 0, i = 0; index < IssuePost.Column.values().length; index++) {
                 Element column = columns.get(index);
                 String text = column.text().replaceAll("&nbsp;", " ");
-                if (!text.trim().isEmpty() && text.trim().charAt(0) != 160) {
+                if (!text.trim().isEmpty() && text.trim().charAt(0) != NON_BREAKING_SPACE) {
                     builder.addValue(IssuePost.Column.values()[i], text);
                     i++;
                 }
@@ -84,12 +89,13 @@ public class AndroidIssueScraper {
         return issueList;
     }
 
+    private static final char NON_BREAKING_SPACE = 160;
     /**
      * Scrape issue details from details page.
-     * @param document
-     * @return
+     * @param document The document the method is scraping from.
+     * @return list of IssueComment
      */
-    private static ArrayList<IssueComment> scrapeDetailFromDocument(@NotNull Document document) {
+    private static ArrayList<IssueComment> scrapeDetailFromDocument(@NotNull final Document document) {
         Element table = document.select("table[class=issuepage]").first();
         Elements thread = table.select("div[id~=hc\\d+$]");
         ArrayList<IssueComment> issueComments = new ArrayList<>();
@@ -120,7 +126,7 @@ public class AndroidIssueScraper {
             doc = downloadIssuesPage(pagination.end);
             issues.addAll(scrapeIssuesFromDocument(doc));
             pagination = getPagination(doc);
-            progressIndicator.setFraction((float)issues.size() / (float)pagination.total);
+            progressIndicator.setFraction((float) issues.size() / (float) pagination.total);
             progressIndicator.setText2("("+ issues.size() + " out of " + pagination.total + ")");
         }
         return issues;
@@ -155,7 +161,7 @@ public class AndroidIssueScraper {
      * @return Document
      * @throws IOException
      */
-    private Document downloadIssuesPage(int offset) throws IssueScraperException {
+    private Document downloadIssuesPage(final int offset) throws IssueScraperException {
         return downloadIssuesPage(offset, MAX_RESULTS_PER_PAGE);
     }
 
@@ -167,8 +173,11 @@ public class AndroidIssueScraper {
      * @return Document
      * @throws IOException
      */
-    private Document downloadIssuesPage(int offset, int numResults) throws IssueScraperException {
-        String url = BASE_URL_TEMPLATE + String.format(PAGINATION_PARAMS_TEMPLATE, numResults, offset);
+    private Document downloadIssuesPage(final int offset,
+                                        final int numResults)
+            throws IssueScraperException {
+        String url = BASE_URL_TEMPLATE
+                + String.format(PAGINATION_PARAMS_TEMPLATE, numResults, offset);
         return fetchFromUrl(url);
     }
 
@@ -176,11 +185,10 @@ public class AndroidIssueScraper {
         int retries = 0;
         while (retries < MAX_RETRIES) {
             try {
-                Document doc = Jsoup.connect(url).get();
-                return doc;
+                return Jsoup.connect(url).get();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                System.out.println("Retrying "+ retries + "/"+ MAX_RETRIES);
+                LOG.debug("Retrying "+ retries + "/"+ MAX_RETRIES);
             }
             retries++;
         }
@@ -191,13 +199,37 @@ public class AndroidIssueScraper {
      * Represents a pagination for Google Issue Tracker.
      */
     private static class Pagination {
-        int start, end, total;
+        private int start, end, total;
+
+        public int getStart() {
+            return start;
+        }
+
+        public void setStart(final int start) {
+            this.start = start;
+        }
+
+        public int getEnd() {
+            return end;
+        }
+
+        public void setEnd(final int end) {
+            this.end = end;
+        }
+
+        public int getTotal() {
+            return total;
+        }
+
+        public void setTotal(final int total) {
+            this.total = total;
+        }
     }
 
     /**
      * Custom general exception
      */
     public static class IssueScraperException extends Exception {
-        IssueScraperException(String message) { super(message); }
+        IssueScraperException(final String message) { super(message); }
     }
 }

@@ -11,27 +11,33 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Pattern;
 
-public class IDEUtil {
+/**
+ * Miscellaneous utility functions specific to the Intellij IDE.
+ */
+public final class IDEUtil {
+
+    private IDEUtil() { }
+
     private static final Pattern NEWLINE_REGEX = Pattern.compile("\n", Pattern.LITERAL);
 
-    public static void displayToolsNotification(@NotNull NotificationType type,
-                                                @NotNull Project project,
-                                                @NotNull String title,
-                                                @NotNull String message) {
+    public static void displayToolsNotification(@NotNull final NotificationType type,
+                                                @NotNull final Project project,
+                                                @NotNull final String title,
+                                                @NotNull final String message) {
         Notifications.Bus.notify(new Notification(
                 title, title,
                 replaceNewlines(message) + "<br/><a href='configureAndroidIssuesPlugin'>Configure</a>",
                 type, new AndroidIssuesNotificationListener(project)), project);
     }
 
-    public static void displaySimpleNotification(@NotNull NotificationType type,
-                                                 @Nullable Project project,
-                                                 @NotNull String title,
-                                                 @NotNull String message) {
+    public static void displaySimpleNotification(@NotNull final NotificationType type,
+                                                 @Nullable final Project project,
+                                                 @NotNull final String title,
+                                                 @NotNull final String message) {
         Notifications.Bus.notify(new Notification(title, title, replaceNewlines(message), type), project);
     }
 
-    private static String replaceNewlines(String s) {
+    private static String replaceNewlines(final String s) {
         return NEWLINE_REGEX.matcher(s).replaceAll("<br/>");
     }
 

@@ -7,9 +7,15 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
+/**
+ * JTable subclass to display the Android Issues
+ */
 class IssuePostTable extends JTable {
 
-    private static final String[] sColumnNames = {
+    /**
+     * Column names for Issue Post Table
+     */
+    private static final String[] COLUMN_NAMES = {
             "Id",
             "Status",
             "Priority",
@@ -23,34 +29,36 @@ class IssuePostTable extends JTable {
             "Version"
     };
 
-    IssuePostTable(@NotNull List<IssuePost> results) {
+    /**
+     * Constructor.
+     * @param results The issues to display
+     */
+    IssuePostTable(@NotNull final List<IssuePost> results) {
         super(new IssueTableModel());
 
         setRowSelectionAllowed(true);
         setColumnSelectionAllowed(false);
         getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        ((DefaultTableModel) getModel()).setColumnIdentifiers(sColumnNames);
+        ((DefaultTableModel) getModel()).setColumnIdentifiers(COLUMN_NAMES);
         // TODO: Create a custom model for the data
 
-        String[][] dataset = new String[results.size()][sColumnNames.length];
+        String[][] dataset = new String[results.size()][COLUMN_NAMES.length];
         for (int i = 0; i < results.size(); i++) {
             dataset[i] = results.get(i).getAsArray();
         }
-        ((DefaultTableModel) getModel()).setDataVector(dataset, sColumnNames);
+        ((DefaultTableModel) getModel()).setDataVector(dataset, COLUMN_NAMES);
     }
 
     static class IssueTableModel extends DefaultTableModel {
-        public IssuePost getRowData(int rowIndex)
+        IssuePost getRowData(final int rowIndex)
         {
-            if (rowIndex  > getRowCount() || rowIndex  <  0)
-            {
+            if (rowIndex  > getRowCount() || rowIndex  <  0) {
                 return null;
             }
             IssuePost.Builder builder = new IssuePost.Builder();
             final int columnCount = getColumnCount();
-            for (int c = 0; c  <  columnCount; c++)
-            {
+            for (int c = 0; c  <  columnCount; c++) {
                 IssuePost.Column column = IssuePost.Column.values()[c];
                 builder.addValue(column, (String) getValueAt(rowIndex, c));
             }
@@ -58,7 +66,7 @@ class IssuePostTable extends JTable {
         }
 
         @Override
-        public boolean isCellEditable(int row, int column) {
+        public boolean isCellEditable(final int row, final int column) {
             return false;
         }
     }

@@ -30,19 +30,21 @@ import java.util.List;
 /**
  * IssueResultsView extends JPanel to show the results of searching for issues.
  */
-class IssueResultsView extends JPanel implements Disposable {
+class  IssueResultsView extends JPanel implements Disposable {
     private final Splitter splitter;
     private final IssuePostTable table;
     private final IssueBrowser browser;
     private final JComponent secondComponent;
     private Runnable closeAction;
 
-    IssueResultsView(@NotNull final Project project, final List<IssuePost> results) {
+    IssueResultsView(@NotNull final Project project,
+                     final List<IssuePost> results) {
         setLayout(new BorderLayout());
         table = new IssuePostTable(results);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        table.getSelectionModel().addListSelectionListener(
+                new ListSelectionListener() {
             @Override
-            public void valueChanged(ListSelectionEvent e) {
+            public void valueChanged(final ListSelectionEvent e) {
                 syncBrowser();
             }
         });
@@ -55,12 +57,13 @@ class IssueResultsView extends JPanel implements Disposable {
         secondComponent.setVisible(false);  // initially hide browser
         add(splitter, BorderLayout.CENTER);
         createActionsPanel();
-        // Add action listeners. These listeners don't do anything if the target node isn't a leaf,
-        // because trunk nodes respond by opening/closing on these same events. Users should use the
-        // popup menu to open any relevant URLs instead.
+        // Add action listeners.
+        // These listeners don't do anything if the target node isn't a leaf,
+        // because trunk nodes respond by opening/closing on these same events.
+        // Users should use the popup menu to open any relevant URLs instead.
         new DoubleClickListener() {
             @Override
-            protected boolean onDoubleClick(MouseEvent event) {
+            protected boolean onDoubleClick(final MouseEvent event) {
                 IssuePost post = getSingleSelectedRow();
                 invokeSelectAction(post);
                 return true;
@@ -78,17 +81,18 @@ class IssueResultsView extends JPanel implements Disposable {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(new OpenURLAction());
         ActionManager actionManager = ActionManager.getInstance();
-        PopupHandler.installPopupHandler(table, actionGroup, ActionPlaces.USAGE_VIEW_POPUP, actionManager);
+        PopupHandler.installPopupHandler(table,
+                actionGroup, ActionPlaces.USAGE_VIEW_POPUP, actionManager);
     }
 
     /**
      * @param close The code to run when the Close button is pressed.
      */
-    void setClose(Runnable close) {
+    void setClose(final Runnable close) {
         this.closeAction = close;
     }
 
-    private void invokeSelectAction(@Nullable IssuePost post) {
+    private void invokeSelectAction(@Nullable final IssuePost post) {
         if (post == null) return;
         String url = post.getDetailURL();
         if (url != null) {
@@ -104,7 +108,8 @@ class IssueResultsView extends JPanel implements Disposable {
         group.add(new CloseAction());
         ActionManager actionManager = ActionManager.getInstance();
         JComponent actionsToolbar = actionManager
-                .createActionToolbar(ActionPlaces.CODE_INSPECTION, group, false).getComponent();
+                .createActionToolbar(ActionPlaces.CODE_INSPECTION, group, false)
+                .getComponent();
         JPanel actionsPanel = new JPanel(new BorderLayout());
         actionsPanel.add(actionsToolbar, BorderLayout.WEST);
         add(actionsPanel, BorderLayout.WEST);
@@ -122,7 +127,8 @@ class IssueResultsView extends JPanel implements Disposable {
         ListSelectionModel selectionModel = table.getSelectionModel();
 
         if (selectionModel.getLeadSelectionIndex() != -1) {
-            return ((IssuePostTable.IssueTableModel) table.getModel()).getRowData(selectionModel.getLeadSelectionIndex());
+            return ((IssuePostTable.IssueTableModel) table.getModel())
+                    .getRowData(selectionModel.getLeadSelectionIndex());
         }
         return null;
     }
@@ -139,18 +145,20 @@ class IssueResultsView extends JPanel implements Disposable {
         if (secondComponent.isVisible() != visible) {
             secondComponent.setVisible(visible);
             splitter.doLayout();
-            splitter.doLayout();  // run twice, in case skipNextLayouting() was called on Splitter
+            splitter.doLayout();
+            // run twice, in case skipNextLayouting() was called on Splitter
         }
     }
 
     /**
-     * Shows the given {@link IssuePost thread} inside the current {@link IssueBrowser}.
+     * Shows the given
+     * {@link IssuePost thread} inside the current {@link IssueBrowser}.
      *
-     * @param IssuePost
-     * @param Query Term
+     * @param post
+     * @param String queryString
      * @return Whether the result could be shown.
      */
-    private boolean showInBrowser(@NotNull IssuePost post, final String queryString) {
+    private boolean showInBrowser(@NotNull final IssuePost post, final String queryString) {
         Cursor currentCursor = getCursor();
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
         List<String> issueThreads = AndroidIssueManager.getIssueThreadLinesFromId(post.getId());
@@ -165,7 +173,7 @@ class IssueResultsView extends JPanel implements Disposable {
         }
 
         @Override
-        public void update(AnActionEvent e) {
+        public void update(final AnActionEvent e) {
             IssuePost post;
             if ((post = getSingleSelectedRow()) != null) {
                 String url = post.getDetailURL();
@@ -174,7 +182,7 @@ class IssueResultsView extends JPanel implements Disposable {
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        public void actionPerformed(final AnActionEvent e) {
             invokeSelectAction(getSingleSelectedRow());
         }
     }
@@ -185,7 +193,7 @@ class IssueResultsView extends JPanel implements Disposable {
         }
 
         @Override
-        public void actionPerformed(AnActionEvent e) {
+        public void actionPerformed(final AnActionEvent e) {
             if (closeAction != null) {
                 closeAction.run();
             }
