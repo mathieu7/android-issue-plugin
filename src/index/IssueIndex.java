@@ -116,7 +116,7 @@ public final class IssueIndex {
      * @param path
      * @throws IOException
      */
-    private static void indexIssues(final IndexWriter writer, Path path) throws IOException {
+    private static void indexIssues(final IndexWriter writer, final Path path) throws IOException {
         if (Files.isDirectory(path)) {
             Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                 @Override

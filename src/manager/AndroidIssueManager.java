@@ -7,7 +7,6 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.intellij.openapi.extensions.PluginId;
 import com.sun.istack.internal.NotNull;
-import com.sun.jna.platform.win32.Secur32;
 import index.IssueIndex;
 import model.IssueComment;
 import model.IssuePost;
@@ -282,27 +281,5 @@ public final class AndroidIssueManager {
             }
         }
         return directory.delete();
-    }
-
-    /**
-     * Get line numbers from index file
-     * @param filepath
-     * @param key
-     */
-    public static void printLines(final String filepath, final String key)
-            throws IOException {
-        int counter = 1;
-        String line;
-        File file = new File(filepath);
-        List<String> entries;
-        entries = Files.readLines(file, StandardCharsets.UTF_8);
-
-        for (String entry : entries)
-        {
-            if (entry.contains(key)) {
-                System.out.println("\t"+ counter + ": " + entry);
-            }
-            counter++;
-        }
     }
 }

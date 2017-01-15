@@ -48,6 +48,7 @@ class IssuePostTable extends JTable {
             dataset[i] = results.get(i).getAsArray();
         }
         ((DefaultTableModel) getModel()).setDataVector(dataset, COLUMN_NAMES);
+
     }
 
     static class IssueTableModel extends DefaultTableModel {

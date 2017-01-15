@@ -1,6 +1,7 @@
 package ui;
 
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
@@ -22,8 +23,9 @@ public final class DynamicToolWindowWrapper {
         return ServiceManager.getService(project, DynamicToolWindowWrapper.class);
     }
 
-    public ToolWindow getToolWindow(@NotNull final Project project, @NotNull final String symbol,
-                                     final List<IssuePost> results) {
+    public ToolWindow getToolWindow(@NotNull final Project project,
+                                    @NotNull final String symbol,
+                                    final List<IssuePost> results) {
         if (mToolWindow == null) {
             mToolWindow = ToolWindowManager.getInstance(project).registerToolWindow(TOOL_WINDOW_TAG,
                     true, ToolWindowAnchor.BOTTOM);

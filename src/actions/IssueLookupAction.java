@@ -5,7 +5,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -30,21 +29,21 @@ import java.util.List;
 public final class IssueLookupAction extends AnAction {
     private Project mProject;
     private String mToken;
+    private int mOffset;
 
     @Override
     public void actionPerformed(final AnActionEvent e) {
         try {
             // Get the caret, the current project, and the current open file.
-            Caret caret = e.getData(CommonDataKeys.CARET);
             mProject = e.getProject();
-            PsiFile file = e.getData(CommonDataKeys.PSI_FILE);
+            PsiFile file = e.getRequiredData(CommonDataKeys.PSI_FILE);
 
-            final Editor editor = e.getData(CommonDataKeys.EDITOR);
+            final Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);
             CaretModel caretModel = editor.getCaretModel();
-            int offset = caretModel.getOffset();
+            mOffset = caretModel.getOffset();
             // Find the token under the caret when the user triggered this action.
             //int cursorPosition = caret.getOffset();
-            PsiElement token = file.findElementAt(offset);
+            PsiElement token = file.findElementAt(mOffset);
             // If it's not null, look up
             //TODO: Check to see if the token is an actual dependency or object.
             if (file instanceof PsiJavaFile) {
@@ -85,24 +84,31 @@ public final class IssueLookupAction extends AnAction {
                     "No indexed issues");
             return;
         }
-        ArrayList<String> issueIds = null;
-        try {
-            issueIds = IssueIndex.searchForTerm(mToken);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        ArrayList<IssuePost> posts = (ArrayList<IssuePost>)
-                AndroidIssueManager.getFilteredIssueList(issueIds);
-        showSamplesToolWindow(mProject, posts);
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<String> issueIds = null;
+                try {
+                    issueIds = IssueIndex.searchForTerm(mToken);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                ArrayList<IssuePost> posts = (ArrayList<IssuePost>)
+                        AndroidIssueManager.getFilteredIssueList(issueIds);
+                showSamplesToolWindow(mProject, mToken, posts);
+            }
+        });
     }
 
     /**
      * Shows the list of results in a toolwindow panel.
      *
      * @param project The project.
+     * @param searchToken The token user searched for.
      * @param issues  List of Android Issues to display
      */
     private void showSamplesToolWindow(@NotNull final Project project,
+                                       final String searchToken,
                                        final List<IssuePost> issues) {
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
@@ -110,7 +116,8 @@ public final class IssueLookupAction extends AnAction {
                 DynamicToolWindowWrapper toolWindowWrapper =
                         DynamicToolWindowWrapper.getInstance(project);
                 ToolWindow toolWindow =
-                        toolWindowWrapper.getToolWindow(project, mToken, issues);
+                        toolWindowWrapper.getToolWindow(project,
+                                searchToken, issues);
                 toolWindow.show(null);
             }
         });

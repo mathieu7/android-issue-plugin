@@ -3,17 +3,17 @@ package ui;
 import com.intellij.CommonBundle;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.BrowserUtil;
+import com.intellij.ide.CopyPasteUtil;
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ex.ClipboardUtil;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.*;
+import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.OnePixelSplitter;
 import com.intellij.ui.PopupHandler;
@@ -22,6 +22,7 @@ import manager.AndroidIssueManager;
 import model.IssuePost;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import util.IDEUtil;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -53,7 +54,6 @@ class IssueResultsView extends JPanel implements Disposable {
                 syncBrowser();
             }
         });
-
         browser = new IssueBrowser(project);
         splitter = new OnePixelSplitter(false, 0.5f);
         splitter.setFirstComponent(ScrollPaneFactory.createScrollPane(table));
@@ -85,7 +85,7 @@ class IssueResultsView extends JPanel implements Disposable {
         });
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(new OpenURLAction());
-        actionGroup.add(new AnnotateIssueAction());
+        actionGroup.add(new CopyIssueToClipboardAction());
         ActionManager actionManager = ActionManager.getInstance();
         PopupHandler.installPopupHandler(table,
                 actionGroup, ActionPlaces.USAGE_VIEW_POPUP, actionManager);
@@ -129,6 +129,7 @@ class IssueResultsView extends JPanel implements Disposable {
         }
     }
 
+    private static final int NOT_SELECTED = -1;
     /**
      * Get the selected issue row.
      * @return
@@ -136,9 +137,11 @@ class IssueResultsView extends JPanel implements Disposable {
     private IssuePost getSingleSelectedRow() {
         ListSelectionModel selectionModel = table.getSelectionModel();
 
-        if (selectionModel.getLeadSelectionIndex() != -1) {
+        int selectedIndex = selectionModel.getLeadSelectionIndex();
+
+        if (selectedIndex != NOT_SELECTED) {
             return ((IssuePostTable.IssueTableModel) table.getModel())
-                    .getRowData(selectionModel.getLeadSelectionIndex());
+                    .getRowData(selectedIndex);
         }
         return null;
     }
@@ -168,7 +171,7 @@ class IssueResultsView extends JPanel implements Disposable {
      * {@link IssuePost thread} inside the current {@link IssueBrowser}.
      *
      * @param post
-     * @param String queryString
+     * @param queryString
      * @return Whether the result could be shown.
      */
     private boolean showInBrowser(@NotNull final IssuePost post,
@@ -215,9 +218,10 @@ class IssueResultsView extends JPanel implements Disposable {
         }
     }
 
-    private class AnnotateIssueAction extends AnAction {
-        private AnnotateIssueAction() {
-            super("Annotate this issue for code block", null, null);
+    private class CopyIssueToClipboardAction extends AnAction {
+
+        private CopyIssueToClipboardAction() {
+            super("Copy issue URL to clipboard", null, null);
         }
 
         @Override
@@ -226,26 +230,7 @@ class IssueResultsView extends JPanel implements Disposable {
             if (post == null) return;
             String url = post.getDetailURL();
             final String comment = "// " + url;
-
-            //Get all the required data from data keys
-            final Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);
-            final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
-            //Access document, caret, and selection
-            final Document document = editor.getDocument();
-
-            CaretModel caretModel = editor.getCaretModel();
-            LogicalPosition logicalPosition = caretModel.getLogicalPosition();
-            VisualPosition visualPosition = caretModel.getVisualPosition();
-            int offset = caretModel.getOffset();
-            //New instance of Runnable to make a replacement
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    document.insertString(offset, comment);
-                }
-            };
-            // Add the issue display
-            WriteCommandAction.runWriteCommandAction(project, runnable);
+            IDEUtil.copyToClipboard(comment);
         }
     }
 }

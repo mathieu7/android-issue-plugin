@@ -71,7 +71,7 @@ class IssueBrowser extends JPanel implements Disposable {
         document = factory.createDocument("");
         editor = (EditorEx) factory.createViewer(document, project);
         EditorSettings settings = editor.getSettings();
-        settings.setLineNumbersShown(true);
+        settings.setLineNumbersShown(false);
         settings.setAnimatedScrolling(false);
         settings.setRefrainFromScrolling(true);
         EditorGutterComponentEx gutter = editor.getGutterComponentEx();
@@ -191,7 +191,7 @@ class IssueBrowser extends JPanel implements Disposable {
      * @param lines The lines of code to render.
      * @param position The position to center on once lines are set.
      */
-    private void setText(@NotNull List<? extends CharSequence> lines,
+    private void setText(@NotNull final List<? extends CharSequence> lines,
                          @NotNull final LogicalPosition position,
                          @NotNull final List<Integer> highlight) {
         final MarkupModel markup = editor.getMarkupModel();
