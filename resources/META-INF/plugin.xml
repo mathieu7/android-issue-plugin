@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.miller.androidissuetracker</id>
     <name>Android Issue Tracker Plugin</name>
-    <version>1.0</version>
+    <version>0.0.1</version>
     <vendor email="mathieu7@gmail.com" url="http://mathieu7.github.io">Matt Miller</vendor>
 
     <description><![CDATA[
@@ -17,11 +17,8 @@
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
     <idea-version since-build="141.0"/>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-         on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.androidstudio</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="ui.DynamicToolWindowWrapper"/>
