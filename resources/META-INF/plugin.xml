@@ -18,15 +18,21 @@
     <idea-version since-build="141.0"/>
 
     <depends>com.intellij.modules.java</depends>
-    <depends>com.intellij.modules.androidstudio</depends>
+    <!--<depends>com.intellij.modules.androidstudio</depends>-->
 
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="ui.DynamicToolWindowWrapper"/>
+
+        <!-- Tab under compiler in IntelliJ -> Preferences -->
+        <applicationConfigurable instance="settings.AndroidIssueTrackerConfigurable"
+                             id="Android Issue Tracker"/>
+        <!-- Persistent data + build server communication for compiler settings -->
+        <applicationService serviceImplementation="settings.AndroidIssueTrackerSettings"/>
     </extensions>
 
     <actions>
         <group id="AndroidIssueTracker.Menu" text="_Android Issue Tracker" description="Android Issue Tracker">
-            <add-to-group group-id="MainMenu" anchor="last"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
             <action class="actions.SyncIssuesAction" id="com.miller.androidissues.actions.SyncIssuesAction"
                     text="Sync Android Issues" description="Download the latest issues from the Android Issue Tracker">
             </action>
