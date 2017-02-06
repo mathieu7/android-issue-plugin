@@ -50,39 +50,36 @@ public class AndroidIssueTrackerConfigPanel extends JPanel {
     }
 
     private JPanel buildConfigPanel() {
-        final JPanel configFilePanel = new JPanel(new GridBagLayout());
-        configFilePanel.setOpaque(false);
-
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout());
         JLabel columnSpecLabel = new JLabel();
         columnSpecLabel.setText("Possible Columns");
         columnSpecLabel.setToolTipText("Enable columns for searching issues");
-        configFilePanel.add(columnSpecLabel, new GridBagConstraints(
-                0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0));
-
+        panel.add(columnSpecLabel);
         JList availablePropertiesList = createListForProperties(
                 AndroidIssueTrackerOptions.FULL_COLUMN_SPEC);
-
-        configFilePanel.add(availablePropertiesList, new GridBagConstraints(
-                1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0));
+        panel.add(availablePropertiesList);
 
         JLabel chosenColumnSpecLabel = new JLabel();
         chosenColumnSpecLabel.setText("Selected Columns");
         chosenColumnSpecLabel.setToolTipText("Selected columns when searching issues");
 
         JList selectedPropertiesList = createListForProperties(mSelectedColumnSpecs);
-        configFilePanel.add(chosenColumnSpecLabel, new GridBagConstraints(
-                2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0));
-        configFilePanel.add(selectedPropertiesList, new GridBagConstraints(
-                3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.NONE, COMPONENT_INSETS, 0, 0));
-        configFilePanel.add(suppressErrorsCheckbox, new GridBagConstraints(
-                4, 0, 1, 1, 1.0, 0.0, GridBagConstraints.WEST,
-                GridBagConstraints.HORIZONTAL, COMPONENT_INSETS, 0, 0));
+        JPanel addRemovePanel = new JPanel();
+        addRemovePanel.setLayout(new BoxLayout(addRemovePanel, BoxLayout.Y_AXIS));
+        JButton addButton = new JButton(">>");
+        JButton removeButton = new JButton("<<");
+        addRemovePanel.add(addButton);
+        addRemovePanel.add(removeButton);
+        panel.add(addRemovePanel);
+        panel.add(chosenColumnSpecLabel);
+        panel.add(selectedPropertiesList);
 
-        return configFilePanel;
+        panel.setComponentOrientation(
+                ComponentOrientation.LEFT_TO_RIGHT);
+        //panel.add(suppressErrorsCheckbox);
+
+        return panel;
     }
 
 

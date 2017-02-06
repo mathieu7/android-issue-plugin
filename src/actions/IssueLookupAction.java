@@ -22,6 +22,7 @@ import util.IDEUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * Action to lookup an issue related to Android by class name.
@@ -57,8 +58,10 @@ public final class IssueLookupAction extends AnAction {
                 IDEUtil.displaySimpleNotification(
                         NotificationType.ERROR,
                         mProject,
-                        "Android Issue Tracker Plugin",
-                        "Failed: Invalid token/file type for search");
+                        ResourceBundle.getBundle("plugin-text")
+                                .getString("plugin_title"),
+                        ResourceBundle.getBundle("plugin-text")
+                                .getString("issue_lookup_error_invalid_token"));
             }
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -72,16 +75,16 @@ public final class IssueLookupAction extends AnAction {
         if (!cacheExists) {
             IDEUtil.displayToolsNotification(NotificationType.ERROR,
                     mProject,
-                    "Android Issue Tracker Plugin",
-                    "No stored issues");
+                    ResourceBundle.getBundle("plugin-text").getString("plugin_title"),
+                    ResourceBundle.getBundle("plugin-text").getString("issue_lookup_error_no_cache"));
             return;
         }
 
         if (!indexed) {
             IDEUtil.displayToolsNotification(NotificationType.ERROR,
                     mProject,
-                    "Android Issue Tracker Plugin",
-                    "No indexed issues");
+                    ResourceBundle.getBundle("plugin-text").getString("plugin_title"),
+                    ResourceBundle.getBundle("plugin-text").getString("issue_lookup_error_no_index"));
             return;
         }
         ApplicationManager.getApplication().invokeLater(new Runnable() {
