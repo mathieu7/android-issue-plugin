@@ -2,7 +2,9 @@
     <id>com.miller.androidissuetracker</id>
     <name>Android Issue Tracker Plugin</name>
     <version>0.0.1</version>
-    <vendor email="mathieu7@gmail.com" url="http://mathieu7.github.io">Matt Miller</vendor>
+    <vendor email="mathieu7@gmail.com" url="http://mathieu7.github.io">Matt
+        Miller
+    </vendor>
 
     <description><![CDATA[
       Unofficial Plugin for the AOSP Issue Tracker. Issues are downloaded and indexed, and can be queried within the editor.<br>
@@ -24,31 +26,43 @@
         <projectService serviceImplementation="ui.DynamicToolWindowWrapper"/>
 
         <!-- Tab under compiler in IntelliJ -> Preferences -->
-        <applicationConfigurable instance="settings.AndroidIssueTrackerConfigurable"
+        <projectConfigurable instance="settings.AndroidIssueTrackerConfigurable"
                              id="Android Issue Tracker"/>
         <!-- Persistent data + build server communication for compiler settings -->
-        <applicationService serviceImplementation="settings.AndroidIssueTrackerSettings"/>
+        <applicationService
+                serviceImplementation="settings.AndroidIssueTrackerSettings"/>
     </extensions>
 
     <actions>
-        <group id="AndroidIssueTracker.Menu" text="_Android Issue Tracker" description="Android Issue Tracker">
+        <group id="AndroidIssueTracker.Menu" text="_Android Issue Tracker"
+               description="Android Issue Tracker">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
-            <action class="actions.SyncIssuesAction" id="com.miller.androidissues.actions.SyncIssuesAction"
-                    text="Sync Android Issues" description="Download the latest issues from the Android Issue Tracker">
+            <action class="actions.SyncIssuesAction"
+                    id="com.miller.androidissues.actions.SyncIssuesAction"
+                    text="Sync Android Issues"
+                    description="Download the latest issues from the Android Issue Tracker">
             </action>
-            <action id="com.miller.androidissues.actions.ClearIssueCacheAction" class="actions.ClearIssueCacheAction"
-                    text="Clear Issue cache(s)" description="Clear issue cache and indices"/>
-            <action class="actions.VisitIssuesAction" id="com.miller.androidissues.actions.VisitIssuesAction"
-                    text="Go to Android Issues Tracker" description="Open https://code.google.com/android">
+            <action id="com.miller.androidissues.actions.ClearIssueCacheAction"
+                    class="actions.ClearIssueCacheAction"
+                    text="Clear Issue cache(s)"
+                    description="Clear issue cache and indices"/>
+            <action class="actions.VisitIssuesAction"
+                    id="com.miller.androidissues.actions.VisitIssuesAction"
+                    text="Go to Android Issues Tracker"
+                    description="Open https://code.google.com/android">
             </action>
-            <action class="actions.ReportIssueAction" id="com.miller.androidissues.actions.ReportIssueAction"
-                    text="Report an AOSP issue..." description="Report an issue to AOSP tracker">
+            <action class="actions.ReportIssueAction"
+                    id="com.miller.androidissues.actions.ReportIssueAction"
+                    text="Report an AOSP issue..."
+                    description="Report an issue to AOSP tracker">
             </action>
         </group>
-        <action id="com.miller.androidissues.actions.FindIssuesAction" class="actions.IssueLookupAction"
+        <action id="com.miller.androidissues.actions.FindIssuesAction"
+                class="actions.IssueLookupAction"
                 text="Find Issue(s)"
                 description="Given a class name/code block from the Android SDK, look up official AOSP issue associated with it.">
-            <add-to-group group-id="EditorPopupMenu1.FindRefactor" anchor="after" relative-to-action="FindUsages"/>
+            <add-to-group group-id="EditorPopupMenu1.FindRefactor"
+                          anchor="after" relative-to-action="FindUsages"/>
             <keyboard-shortcut first-keystroke="alt F9" keymap="$default"/>
         </action>
     </actions>

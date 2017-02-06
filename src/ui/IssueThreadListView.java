@@ -34,7 +34,7 @@ import javax.swing.JPanel;
 /**
  * Editor panel that displays the current issue thread, and highlights the relevant search details.
  */
-class IssueBrowser extends JPanel implements Disposable {
+class IssueThreadListView extends JPanel implements Disposable {
     /**
      * Highlight Background color
      */
@@ -63,7 +63,7 @@ class IssueBrowser extends JPanel implements Disposable {
     private final EditorHighlighterFactory highlighterFactory;
 
 
-    IssueBrowser(@NotNull final Project project) {
+    IssueThreadListView(@NotNull final Project project) {
         super(new BorderLayout());
         this.project = project;
         highlighterFactory = EditorHighlighterFactory.getInstance();
@@ -92,6 +92,7 @@ class IssueBrowser extends JPanel implements Disposable {
         component.setPreferredSize(new Dimension(0, 0));
         add(component, BorderLayout.CENTER);
     }
+
     @Override
     public void dispose() {
         EditorFactory factory = EditorFactory.getInstance();
@@ -107,7 +108,7 @@ class IssueBrowser extends JPanel implements Disposable {
         });
     }
 
-    void showResult(final List<String> issueThreads, final String queryString) {
+    void showThread(final List<String> issueThreads, final String queryString) {
         if (issueThreads == null || issueThreads.isEmpty()) {
             showEmpty();
             return;

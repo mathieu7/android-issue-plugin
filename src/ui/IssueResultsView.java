@@ -3,14 +3,9 @@ package ui;
 import com.intellij.CommonBundle;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.BrowserUtil;
-import com.intellij.ide.CopyPasteUtil;
 import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ex.ClipboardUtil;
-import com.intellij.openapi.command.WriteCommandAction;
-import com.intellij.openapi.editor.*;
-import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
@@ -39,7 +34,7 @@ import java.util.List;
 class IssueResultsView extends JPanel implements Disposable {
     private final Splitter splitter;
     private final IssuePostTable table;
-    private final IssueBrowser browser;
+    private final IssueThreadListView threadListView;
     private final JComponent secondComponent;
     private Runnable closeAction;
 
@@ -51,13 +46,13 @@ class IssueResultsView extends JPanel implements Disposable {
                 new ListSelectionListener() {
             @Override
             public void valueChanged(final ListSelectionEvent e) {
-                syncBrowser();
+                displaySelectedIssueThread();
             }
         });
-        browser = new IssueBrowser(project);
+        threadListView = new IssueThreadListView(project);
         splitter = new OnePixelSplitter(false, 0.5f);
         splitter.setFirstComponent(ScrollPaneFactory.createScrollPane(table));
-        secondComponent = ScrollPaneFactory.createScrollPane(browser.getPanel());
+        secondComponent = ScrollPaneFactory.createScrollPane(threadListView.getPanel());
         splitter.setSecondComponent(secondComponent);
         secondComponent.setVisible(false);  // initially hide browser
         add(splitter, BorderLayout.CENTER);
@@ -124,21 +119,20 @@ class IssueResultsView extends JPanel implements Disposable {
     @Override
     public void dispose() {
         splitter.dispose();
-        if (browser != null) {
-            browser.dispose();
+        if (threadListView != null) {
+            threadListView.dispose();
         }
     }
 
     private static final int NOT_SELECTED = -1;
+
     /**
      * Get the selected issue row.
      * @return
      */
     private IssuePost getSingleSelectedRow() {
         ListSelectionModel selectionModel = table.getSelectionModel();
-
         int selectedIndex = selectionModel.getLeadSelectionIndex();
-
         if (selectedIndex != NOT_SELECTED) {
             return ((IssuePostTable.IssueTableModel) table.getModel())
                     .getRowData(selectedIndex);
@@ -149,14 +143,14 @@ class IssueResultsView extends JPanel implements Disposable {
     /**
      * Fill the browser with the currently selected issue row thread.
      */
-    private void syncBrowser() {
+    private void displaySelectedIssueThread() {
         boolean visible = false;
         IssuePost post = getSingleSelectedRow();
         if (post != null) {
-            showInBrowser(post, "");
+            showIssueThread(post, "");
             visible = true;
         } else {
-            browser.showEmpty();
+            threadListView.showEmpty();
         }
         if (secondComponent.isVisible() != visible) {
             secondComponent.setVisible(visible);
@@ -168,20 +162,17 @@ class IssueResultsView extends JPanel implements Disposable {
 
     /**
      * Shows the given
-     * {@link IssuePost thread} inside the current {@link IssueBrowser}.
+     * {@link IssuePost thread} inside the current {@link IssueThreadListView}.
      *
      * @param post
      * @param queryString
      * @return Whether the result could be shown.
      */
-    private boolean showInBrowser(@NotNull final IssuePost post,
+    private boolean showIssueThread(@NotNull final IssuePost post,
                                   final String queryString) {
-        Cursor currentCursor = getCursor();
-        setCursor(new Cursor(Cursor.WAIT_CURSOR));
         List<String> issueThreads =
                 AndroidIssueManager.getIssueThreadLinesFromId(post.getId());
-        browser.showResult(issueThreads, queryString);
-        setCursor(currentCursor);
+        threadListView.showThread(issueThreads, queryString);
         return true;
     }
 

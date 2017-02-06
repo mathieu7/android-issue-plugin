@@ -15,34 +15,7 @@ import org.jetbrains.annotations.Nullable;
                 @Storage("android_issue_tracker.xml")
         }
 )
-class AndroidIssueTrackerSettings implements PersistentStateComponent<
-        AndroidIssueTrackerSettings.AndroidIssueTrackerOptions> {
-
-    public static class AndroidIssueTrackerOptions {
-        private int numberOfRetries;
-        private String[] columnSpec = DEFAULT_COLUMN_SPEC;
-
-        /**
-         * Default Column Spec used by the plugin.
-         */
-        public static final String[] DEFAULT_COLUMN_SPEC = {
-                "Id",
-                "Status",
-                "Priority",
-                "Owner",
-                "Summary",
-                "Stars",
-                "Reporter",
-                "Opened",
-                "Component",
-                "Type",
-                "Version"
-        };
-
-        public AndroidIssueTrackerOptions() {
-            numberOfRetries = 5;
-        }
-    }
+public class AndroidIssueTrackerSettings implements PersistentStateComponent<AndroidIssueTrackerOptions> {
 
     private AndroidIssueTrackerOptions myBuildOptions = new AndroidIssueTrackerOptions();
 
@@ -58,7 +31,7 @@ class AndroidIssueTrackerSettings implements PersistentStateComponent<
     }
 
     @NotNull
-    public static AndroidIssueTrackerSettings getInstance(@NotNull Project project) {
+    public static AndroidIssueTrackerSettings getInstance(final @NotNull Project project) {
         AndroidIssueTrackerSettings settings =
                 ServiceManager.getService(project, AndroidIssueTrackerSettings.class);
         if (settings == null) {

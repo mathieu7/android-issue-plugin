@@ -1,7 +1,6 @@
 package ui;
 
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
@@ -11,7 +10,7 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import model.IssuePost;
 import org.jetbrains.annotations.NotNull;
-import util.AndroidIssuePluginIcons;
+import util.Icons;
 
 import java.util.List;
 
@@ -29,7 +28,7 @@ public final class DynamicToolWindowWrapper {
         if (mToolWindow == null) {
             mToolWindow = ToolWindowManager.getInstance(project).registerToolWindow(TOOL_WINDOW_TAG,
                     true, ToolWindowAnchor.BOTTOM);
-            mToolWindow.setIcon(AndroidIssuePluginIcons.STRUCTURE_TOOL_WINDOW);
+            mToolWindow.setIcon(Icons.STRUCTURE_TOOL_WINDOW);
         }
         mToolWindow.show(null);
 

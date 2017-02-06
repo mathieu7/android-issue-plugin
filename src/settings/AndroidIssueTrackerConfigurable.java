@@ -5,7 +5,6 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import settings.AndroidIssueTrackerSettings.AndroidIssueTrackerOptions;
 import ui.AndroidIssueTrackerConfigPanel;
 
 import javax.swing.*;
@@ -24,7 +23,7 @@ public class AndroidIssueTrackerConfigurable implements Configurable
         this(project, new AndroidIssueTrackerConfigPanel(project));
     }
 
-    AndroidIssueTrackerConfigurable(@NotNull final Project project,
+    private AndroidIssueTrackerConfigurable(@NotNull final Project project,
                                     @NotNull final AndroidIssueTrackerConfigPanel configPanel) {
         this.project = project;
         this.configPanel = configPanel;
@@ -45,24 +44,26 @@ public class AndroidIssueTrackerConfigurable implements Configurable
 
     @Override
     public boolean isModified() {
-        final AndroidIssueTrackerOptions configuration = getConfiguration();
+        final AndroidIssueTrackerSettings configuration = getConfiguration();
         return false;
     }
 
 
     public void apply() throws ConfigurationException {
-        final AndroidIssueTrackerOptions configuration = getConfiguration();
+        final AndroidIssueTrackerSettings configuration = getConfiguration();
 
     }
 
-    final AndroidIssueTrackerOptions getConfiguration() {
-        return ServiceManager.getService(project, AndroidIssueTrackerOptions.class);
+    final AndroidIssueTrackerSettings getConfiguration() {
+        return ServiceManager.getService(project, AndroidIssueTrackerSettings.class);
     }
 
-
+    @Override
     public void reset() {
-        final AndroidIssueTrackerOptions configuration = getConfiguration();
-
+        final AndroidIssueTrackerOptions configuration = getConfiguration().getState();
+        configPanel.setSelectedColumnSpecs(configuration.getSelectedColumnSpecs());
+        configPanel.setNumberOfRetries(configuration.getNumberOfRetries());
+        configPanel.initializeConfigPanel();
     }
 
     public void disposeUIResources() {

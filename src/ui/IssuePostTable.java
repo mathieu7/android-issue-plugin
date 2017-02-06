@@ -7,28 +7,12 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
+import static settings.AndroidIssueTrackerOptions.DEFAULT_COLUMN_SPEC;
+
 /**
  * JTable subclass to display the Android Issues
  */
 class IssuePostTable extends JTable {
-
-    /**
-     * Column names for Issue Post Table
-     */
-    private static final String[] COLUMN_NAMES = {
-            "Id",
-            "Status",
-            "Priority",
-            "Owner",
-            "Summary",
-            "Stars",
-            "Reporter",
-            "Opened",
-            "Component",
-            "Type",
-            "Version"
-    };
-
     /**
      * Constructor.
      * @param results The issues to display
@@ -40,14 +24,14 @@ class IssuePostTable extends JTable {
         setColumnSelectionAllowed(false);
         getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        ((DefaultTableModel) getModel()).setColumnIdentifiers(COLUMN_NAMES);
+        ((DefaultTableModel) getModel()).setColumnIdentifiers(DEFAULT_COLUMN_SPEC);
         // TODO: Create a custom model for the data
 
-        String[][] dataset = new String[results.size()][COLUMN_NAMES.length];
+        String[][] dataset = new String[results.size()][DEFAULT_COLUMN_SPEC.length];
         for (int i = 0; i < results.size(); i++) {
             dataset[i] = results.get(i).getAsArray();
         }
-        ((DefaultTableModel) getModel()).setDataVector(dataset, COLUMN_NAMES);
+        ((DefaultTableModel) getModel()).setDataVector(dataset, DEFAULT_COLUMN_SPEC);
 
     }
 
