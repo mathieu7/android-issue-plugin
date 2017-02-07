@@ -12,6 +12,7 @@ import model.IssueComment;
 import model.IssuePost;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import util.IDEUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -129,10 +130,10 @@ public final class AndroidIssueManager {
         try {
             List<String> strings = Files.readLines(threadFile, StandardCharsets.UTF_8);
             int numLines = strings.size();
-            for (int i = 0; i < numLines; i+= 3) {
+            for (int i = 0; i < numLines; i += 3) {
                 String author = strings.get(i);
-                String date = strings.get(i+1);
-                String comments = strings.get(i+2);
+                String date = strings.get(i + 1);
+                String comments = strings.get(i + 2);
                 entries.add(new IssueComment(author, date, comments));
             }
         } catch (Exception ex) {
@@ -187,10 +188,10 @@ public final class AndroidIssueManager {
             }
             oos.close();
         } catch (IOException ex) {
-            //TODO: Use IDEUtil here
-            Notifications.Bus.notify(new Notification("Android Issue Tracker",
-                    "Failed", "Could not write issues locally" +
-                    " reason: " + ex.getLocalizedMessage(), NotificationType.INFORMATION));
+            IDEUtil.displaySimpleNotification(NotificationType.ERROR,
+                    null, "Failed", "Could not write issues locally, reason: "
+                            + ex.getLocalizedMessage());
+
         }
     }
 

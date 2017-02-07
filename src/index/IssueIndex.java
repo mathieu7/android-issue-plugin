@@ -1,6 +1,5 @@
 package index;
 
-import com.intellij.openapi.diagnostic.Logger;
 import manager.AndroidIssueManager;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -22,8 +21,7 @@ import java.util.ArrayList;
  * File-Based Index Extension for Google Android Issues files (using Lucene).
  */
 public final class IssueIndex {
-    private static final Logger sLogger = Logger.getInstance(IssueIndex.class);
-    private static final String sIndexName = ".aosp_issue_index";
+    private static final String INDEX_NAME = ".aosp_issue_index";
     private static final String PATH_FIELD_TAG = "path";
     private static final String MODIFIED_FIELD_TAG = "modified";
     private static final String CONTENT_FIELD_TAG = "contents";
@@ -42,7 +40,7 @@ public final class IssueIndex {
 
     private static String getIndexDirectoryPath() {
         File pluginDirectory = AndroidIssueManager.getPluginDirectory();
-        File indexFile = new File(pluginDirectory, sIndexName);
+        File indexFile = new File(pluginDirectory, INDEX_NAME);
         return indexFile.getAbsolutePath();
     }
 

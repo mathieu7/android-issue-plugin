@@ -7,18 +7,17 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import manager.AndroidIssueManager;
-import model.IssuePost;
 import tasks.DownloadTask;
 import tasks.IndexingTask;
 import util.IDEUtil;
-
-import java.util.List;
+import util.PluginTextUtil;
 
 /**
  * Action to sync the current state of Android Issues with the plugin's version.
  */
-public final class SyncIssuesAction extends AnAction implements IndexingTask.Listener, DownloadTask.Listener {
+public final class SyncIssuesAction extends AnAction implements
+        IndexingTask.Listener, DownloadTask.Listener
+{
     private Project mProject;
     @Override
     public void actionPerformed(final AnActionEvent e) {
@@ -43,7 +42,8 @@ public final class SyncIssuesAction extends AnAction implements IndexingTask.Lis
             @Override
             public void run() {
                 Messages.showInfoMessage(mProject,
-                        "Indexing completed", "Android Issue Tracker Plugin");
+                        "Indexing completed",
+                        PluginTextUtil.getString("plugin_title"));
             }
         });
     }
@@ -51,7 +51,7 @@ public final class SyncIssuesAction extends AnAction implements IndexingTask.Lis
     @Override
     public void onIndexingFailed(final String reason) {
         IDEUtil.displaySimpleNotification(NotificationType.ERROR, null,
-                "Android Issues Plugin",
+                PluginTextUtil.getString("plugin_title"),
                 "Could not index issues from Google,"
                         + " reason: " + reason);
     }
@@ -59,7 +59,7 @@ public final class SyncIssuesAction extends AnAction implements IndexingTask.Lis
     @Override
     public void onDownloadFailed(final Exception exception) {
         IDEUtil.displaySimpleNotification(NotificationType.INFORMATION, null,
-                "Android Issues Plugin",
+                PluginTextUtil.getString("plugin_title"),
                 "Could not refresh issues from Google,"
                         + " reason: " + exception.getLocalizedMessage());
     }
