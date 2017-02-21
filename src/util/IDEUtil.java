@@ -30,7 +30,10 @@ public final class IDEUtil {
                                                 @NotNull final String message) {
         Notifications.Bus.notify(new Notification(
                 title, title,
-                replaceNewlines(message) + "<br/><a href='configureAndroidIssuesPlugin'>Configure</a>",
+                replaceNewlines(message)
+                        + "<br/><a href='"
+                        + AndroidIssuesNotificationListener.EVENT_DESCRIPTION
+                        + "'>Configure</a>",
                 type, new AndroidIssuesNotificationListener(project)), project);
     }
 
@@ -49,6 +52,10 @@ public final class IDEUtil {
         HintManager.getInstance().showErrorHint(editor, message);
     }
 
+    /**
+     * Get the string content of the clipboard.
+     * @return
+     */
     public static String getClipboardContent() {
         try {
             return (String) getSystemClipboard().getData(DataFlavor.stringFlavor);
@@ -58,19 +65,28 @@ public final class IDEUtil {
         return null;
     }
 
+    /**
+     * Check if the clipboard is empty.
+     * @return
+     */
     public static boolean isClipboardEmpty() {
         String content = getClipboardContent();
         return content == null || content.isEmpty();
     }
 
     /**
-     * @param   str
+     * Copy string to clipboard.
+     * @param string
      */
-    public static void copyToClipboard(final String str) {
+    public static void copyToClipboard(final String string) {
         Clipboard clipboard = getSystemClipboard();
-        clipboard.setContents(new StringSelection(str), null);
+        clipboard.setContents(new StringSelection(string), null);
     }
 
+    /**
+     * Get a reference to the system clipboard.
+     * @return
+     */
     public static Clipboard getSystemClipboard() {
         return Toolkit.getDefaultToolkit().getSystemClipboard();
     }

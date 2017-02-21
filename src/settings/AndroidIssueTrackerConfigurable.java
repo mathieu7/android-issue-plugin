@@ -26,13 +26,13 @@ public class AndroidIssueTrackerConfigurable implements Configurable
     }
 
     private AndroidIssueTrackerConfigurable(@NotNull final Project project,
-                                    @NotNull final AndroidIssueTrackerConfigPanel configPanel) {
+                                            @NotNull final AndroidIssueTrackerConfigPanel configPanel) {
         this.project = project;
         this.configPanel = configPanel;
     }
 
     public String getDisplayName() {
-        return "Android Issue Tracker";
+        return ID;
     }
 
     public String getHelpTopic() {
@@ -53,7 +53,6 @@ public class AndroidIssueTrackerConfigurable implements Configurable
 
     public void apply() throws ConfigurationException {
         final AndroidIssueTrackerSettings configuration = getConfiguration();
-
     }
 
     final AndroidIssueTrackerSettings getConfiguration() {

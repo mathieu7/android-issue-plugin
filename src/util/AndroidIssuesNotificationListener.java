@@ -10,7 +10,7 @@ import settings.AndroidIssueTrackerConfigurable;
 import javax.swing.event.HyperlinkEvent;
 
 public final class AndroidIssuesNotificationListener implements NotificationListener {
-    private static final String EVENT_DESCRIPTION = "configureAndroidIssuesPlugin";
+    public static final String EVENT_DESCRIPTION = "configureAndroidIssuesPlugin";
 
     private final Project myProject;
 

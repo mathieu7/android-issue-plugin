@@ -276,7 +276,11 @@ public final class AndroidIssueManager {
                         deleteDirectory(file);
                     }
                     else {
-                        file.delete();
+                        boolean deleted = file.delete();
+                        System.out.println("Directory: "
+                                + file.getName()
+                                + " deleted: "
+                                + deleted);
                     }
                 }
             }
