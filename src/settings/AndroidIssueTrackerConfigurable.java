@@ -15,6 +15,8 @@ import javax.swing.*;
  */
 public class AndroidIssueTrackerConfigurable implements Configurable
 {
+    public static final String ID = "Android Issue Tracker";
+
     private final Project project;
 
     private final AndroidIssueTrackerConfigPanel configPanel;

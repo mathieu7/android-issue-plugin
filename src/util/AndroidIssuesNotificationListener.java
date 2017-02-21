@@ -5,6 +5,7 @@ import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import settings.AndroidIssueTrackerConfigurable;
 
 import javax.swing.event.HyperlinkEvent;
 
@@ -26,7 +27,7 @@ public final class AndroidIssuesNotificationListener implements NotificationList
         if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             if (event.getDescription().equals(EVENT_DESCRIPTION)
                     && !myProject.isDisposed()) {
-                //ShowSettingsUtil.getInstance().showSettingsDialog(myProject, HaskellToolsConfigurable.HASKELL_TOOLS_ID);
+                ShowSettingsUtil.getInstance().showSettingsDialog(myProject, AndroidIssueTrackerConfigurable.ID);
                 notification.expire();
             }
         }
