@@ -1,6 +1,7 @@
 package scraper;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.project.Project;
 import model.IssueComment;
 import model.IssuePost;
 import org.apache.commons.logging.Log;
@@ -10,8 +11,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import settings.AndroidIssueTrackerOptions;
+import settings.AndroidIssueTrackerSettings;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,22 +24,21 @@ import java.util.regex.Pattern;
 
 public final class AndroidIssueScraper {
     private static final Log LOG = LogFactory.getLog(AndroidIssueScraper.class);
-    // Our base url to fetch issue listings from.
-    private static final String BASE_URL_TEMPLATE =
-            "https://code.google.com/p/android/issues/list?can=2&q=assigned"
-            + "&colspec=ID%20Status%20Priority%20Owner%20Summary"
-            + "%20Stars%20Reporter%20Opened%20Component%20Type%20Version&cells=tiles";
+
     // Pagination parameters
     private static final String PAGINATION_PARAMS_TEMPLATE = "&num=%d&start=%d";
     private static final String PAGINATION_REGEX = ".*\\s*(\\d+)\\s*-\\s*(\\d+)\\s*of\\s*(\\d+).*";
     private static final int MAX_RESULTS_PER_PAGE = 100;
     private static final int MAX_RETRIES = 5;
     private static AndroidIssueScraper instance = new AndroidIssueScraper();
+    private AndroidIssueTrackerOptions options;
 
     private AndroidIssueScraper() {
     }
 
-    public static AndroidIssueScraper getInstance() {
+    public static AndroidIssueScraper getInstance(@NotNull Project project) {
+        AndroidIssueTrackerSettings settings = AndroidIssueTrackerSettings.getInstance(project);
+        instance.options = settings.getState();
         return instance;
     }
 
@@ -179,9 +183,13 @@ public final class AndroidIssueScraper {
     private Document downloadIssuesPage(final int offset,
                                         final int numResults)
             throws IssueScraperException {
-        String url = BASE_URL_TEMPLATE
-                + String.format(PAGINATION_PARAMS_TEMPLATE, numResults, offset);
-        return fetchFromUrl(url);
+        try {
+            String url = URLBuilder.generateIssuesURL(options)
+                    + String.format(PAGINATION_PARAMS_TEMPLATE, numResults, offset);
+            return fetchFromUrl(url);
+        } catch (URISyntaxException exception) {
+            throw new IssueScraperException(exception.getLocalizedMessage());
+        }
     }
 
     private Document fetchFromUrl(final String url) throws IssueScraperException {
@@ -202,31 +210,7 @@ public final class AndroidIssueScraper {
      * Represents a pagination for Google Issue Tracker.
      */
     private static class Pagination {
-        private int start, end, total;
-
-        public int getStart() {
-            return start;
-        }
-
-        public void setStart(final int start) {
-            this.start = start;
-        }
-
-        public int getEnd() {
-            return end;
-        }
-
-        public void setEnd(final int end) {
-            this.end = end;
-        }
-
-        public int getTotal() {
-            return total;
-        }
-
-        public void setTotal(final int total) {
-            this.total = total;
-        }
+        public int start, end, total;
     }
 
     /**

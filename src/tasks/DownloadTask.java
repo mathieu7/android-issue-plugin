@@ -1,6 +1,5 @@
 package tasks;
 
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -12,15 +11,15 @@ import scraper.AndroidIssueScraper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Task to download issues from Android Issue Tracker
  */
 public final class DownloadTask extends Task.Backgroundable {
-    /**
-     * Logger for debugging purposes.
-     */
-    private Logger mLogger = Logger.getInstance(DownloadTask.class);
+
 
     public interface Listener {
         void onDownloadCompleted();
@@ -50,22 +49,43 @@ public final class DownloadTask extends Task.Backgroundable {
         progressIndicator.setIndeterminate(false);
         try {
             // First, download all the issue posts
-            ArrayList<IssuePost> issues =
-                    (ArrayList<IssuePost>) AndroidIssueScraper.getInstance().getIssues(progressIndicator);
+            ArrayList<IssuePost> issues = (ArrayList<IssuePost>)
+                    AndroidIssueScraper.getInstance(getProject()).getIssues(progressIndicator);
 
             // Second, write all the posts to storage
             AndroidIssueManager.writePostsToStorage(issues);
 
+            ExecutorService executorService = Executors.newFixedThreadPool(5);
             // Then, For each post, download the issue thread associated by id
-            // and write to storage
+            // and write to storage.
+            int count = 0;
             for (IssuePost issue: issues) {
-                System.out.println("Writing issue thread to storage: "
-                        + issue.getId());
-                List<IssueComment> issueComments =
-                        AndroidIssueScraper.getInstance().getIssueDetail(issue);
-                AndroidIssueManager.writeThreadToStorage(
-                        issue.getId(), issueComments);
+                final int c = count;
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println(c + " - Writing issue thread to storage: "
+                                + issue.getId());
+                        try {
+                            List<IssueComment> issueComments =
+                                    AndroidIssueScraper.getInstance(getProject()).getIssueDetail(issue);
+                            AndroidIssueManager.writeThreadToStorage(
+                                    issue.getId(), issueComments);
+                        } catch (AndroidIssueScraper.IssueScraperException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+                count++;
             }
+
+            try {
+                executorService.awaitTermination(240L, TimeUnit.SECONDS);
+            } catch (InterruptedException exception) {
+                exception.printStackTrace();
+                System.out.println("Timeout reached, executorService suspended");
+            }
+
 
             // notify observer that we've finished.
             if (mListener != null) {

@@ -4,10 +4,12 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsShowConfirmationOption;
 import com.intellij.util.ui.ConfirmationDialog;
 import manager.AndroidIssueManager;
+import tasks.DeleteDataTask;
 import util.IDEUtil;
 import util.PluginTextUtil;
 
@@ -29,7 +31,8 @@ public final class ClearIssueCacheAction extends AnAction {
             ApplicationManager.getApplication().invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    AndroidIssueManager.clearCacheAndIndex();
+                    ProgressManager.getInstance().run(
+                            new DeleteDataTask(e.getProject()));
                 }
             });
         } catch (Exception ex) {
