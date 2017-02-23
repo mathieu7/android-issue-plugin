@@ -3,6 +3,7 @@ package ui;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBList;
 import com.intellij.util.ui.JBUI;
+import model.ColumnValues;
 import org.jetbrains.annotations.NotNull;
 import settings.AndroidIssueTrackerOptions;
 
@@ -57,7 +58,7 @@ public class AndroidIssueTrackerConfigPanel extends JPanel {
         columnSpecLabel.setToolTipText("Enable columns for searching issues");
         panel.add(columnSpecLabel);
         JList availablePropertiesList = createListForProperties(
-                AndroidIssueTrackerOptions.FULL_COLUMN_SPEC);
+                ColumnValues.FULL_COLUMN_SPEC);
         panel.add(availablePropertiesList);
 
         JLabel chosenColumnSpecLabel = new JLabel();

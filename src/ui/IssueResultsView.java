@@ -134,8 +134,7 @@ class IssueResultsView extends JPanel implements Disposable {
         ListSelectionModel selectionModel = table.getSelectionModel();
         int selectedIndex = selectionModel.getLeadSelectionIndex();
         if (selectedIndex != NOT_SELECTED) {
-            return ((IssuePostTable.IssueTableModel) table.getModel())
-                    .getRowData(selectedIndex);
+            return table.getRowData(selectedIndex);
         }
         return null;
     }

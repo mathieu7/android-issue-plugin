@@ -2,6 +2,7 @@ package scraper;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import model.ColumnValues;
 import model.IssueComment;
 import model.IssuePost;
 import org.apache.commons.logging.Log;
@@ -75,20 +76,35 @@ public final class AndroidIssueScraper {
     private static ArrayList<IssuePost> scrapeIssuesFromDocument(@NotNull final Document document) {
         Element listingTable = document.select("table[id=resultstable]").first();
         ArrayList<IssuePost> issueList = new ArrayList<>();
+
+        ArrayList<String> availableHeaders = new ArrayList<>();
+        // Get the available columns.
+        Elements headers = listingTable.getElementsByTag("th");
+        for (Element header : headers) {
+            String text = header.text().replaceAll("&nbsp;", " ");
+            for (String v : ColumnValues.FULL_COLUMN_SPEC) {
+                if (text.contains(v)) {
+                    availableHeaders.add(v);
+                    break;
+                }
+            }
+        }
         Elements rows = listingTable.getElementsByTag("tr");
         for (Element row : rows) {
             Elements columns = row.select("td[class~=.*col_\\d+");
             if (columns == null || columns.isEmpty()) continue;
-            IssuePost.Builder builder = new IssuePost.Builder();
-            for (int index = 0, i = 0; index < IssuePost.Column.values().length; index++) {
+            IssuePost post  = new IssuePost();
+
+            for (int index = 0, i=0; index < availableHeaders.size(); index++) {
+                String headerKey = availableHeaders.get(i);
                 Element column = columns.get(index);
                 String text = column.text().replaceAll("&nbsp;", " ");
                 if (!text.trim().isEmpty() && text.trim().charAt(0) != NON_BREAKING_SPACE) {
-                    builder.addValue(IssuePost.Column.values()[i], text);
+                    post.setValue(headerKey, text);
                     i++;
                 }
             }
-            issueList.add(builder.build());
+            issueList.add(post);
         }
         return issueList;
     }

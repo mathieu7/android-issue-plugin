@@ -1,18 +1,19 @@
 package ui;
 
+import model.ColumnValues;
 import model.IssuePost;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-import static settings.AndroidIssueTrackerOptions.DEFAULT_COLUMN_SPEC;
 
 /**
  * JTable subclass to display the Android Issues
  */
 class IssuePostTable extends JTable {
+    private IssueTableModel mModel;
     /**
      * Constructor.
      * @param results The issues to display
@@ -20,39 +21,72 @@ class IssuePostTable extends JTable {
     IssuePostTable(@NotNull final List<IssuePost> results) {
         super(new IssueTableModel());
 
+        mModel = (IssueTableModel) getModel();
         setRowSelectionAllowed(true);
         setColumnSelectionAllowed(false);
         getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        ((DefaultTableModel) getModel()).setColumnIdentifiers(DEFAULT_COLUMN_SPEC);
-        // TODO: Create a custom model for the data
-
-        String[][] dataset = new String[results.size()][DEFAULT_COLUMN_SPEC.length];
-        for (int i = 0; i < results.size(); i++) {
-            dataset[i] = results.get(i).getAsArray();
-        }
-        ((DefaultTableModel) getModel()).setDataVector(dataset, DEFAULT_COLUMN_SPEC);
-
+        mModel.setColumnIdentifiers(ColumnValues.DEFAULT_COLUMN_SPEC);
+        mModel.setDataVector(results);
     }
 
-    static class IssueTableModel extends DefaultTableModel {
-        IssuePost getRowData(final int rowIndex)
+    public IssuePost getRowData(final int rowIndex) {
+        return mModel.getRowData(rowIndex);
+    }
+
+    private static class IssueTableModel extends AbstractTableModel {
+        private List<IssuePost> issuePosts;
+        private String[] columnIdentifiers;
+        private String[][] postTable;
+
+        public void setColumnIdentifiers(final String[] columnIdentifiers) {
+            this.columnIdentifiers = columnIdentifiers;
+        }
+
+        public void setDataVector(final List<IssuePost> data) {
+            issuePosts = data;
+            convertToTableFormat();
+        }
+
+        private void convertToTableFormat() {
+            if (issuePosts == null) return;
+            postTable = new String[issuePosts.size()]
+                    [ColumnValues.DEFAULT_COLUMN_SPEC.length];
+            for (int i = 0; i < issuePosts.size(); i++) {
+                postTable[i] = issuePosts.get(i).getAsArray();
+            }
+        }
+
+        public IssuePost getRowData(final int rowIndex)
         {
             if (rowIndex  > getRowCount() || rowIndex  <  0) {
                 return null;
             }
-            IssuePost.Builder builder = new IssuePost.Builder();
-            final int columnCount = getColumnCount();
-            for (int c = 0; c  <  columnCount; c++) {
-                IssuePost.Column column = IssuePost.Column.values()[c];
-                builder.addValue(column, (String) getValueAt(rowIndex, c));
-            }
-            return builder.build();
+            return issuePosts.get(rowIndex);
+        }
+
+        @Override
+        public int getRowCount() {
+            return issuePosts == null || issuePosts.isEmpty() ? 0 : issuePosts.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columnIdentifiers == null ? 0 : columnIdentifiers.length;
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return columnIdentifiers[column];
         }
 
         @Override
         public boolean isCellEditable(final int row, final int column) {
             return false;
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            return postTable[rowIndex][columnIndex];
         }
     }
 }

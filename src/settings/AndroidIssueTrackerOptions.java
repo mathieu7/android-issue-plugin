@@ -1,5 +1,7 @@
 package settings;
 
+import model.ColumnValues;
+
 public class AndroidIssueTrackerOptions {
     /**
      * Number of retries to fetch issues with.
@@ -9,56 +11,7 @@ public class AndroidIssueTrackerOptions {
     /**
      * Default enabled columns to search with.
      */
-    private String[] columnSpec = DEFAULT_COLUMN_SPEC;
-
-    /**
-     * Default Column Spec used by the plugin.
-     */
-    public static final String[] DEFAULT_COLUMN_SPEC = {
-            "Id",
-            "Status",
-            "Priority",
-            "Owner",
-            "Summary",
-            "Stars",
-            "Reporter",
-            "Opened",
-            "Component",
-            "Type",
-            "Version"
-    };
-
-    /**
-     * All possible column specs to search with.
-     */
-    public static final String[] FULL_COLUMN_SPEC = {
-            "Id",
-            "Status",
-            "Priority",
-            "Owner",
-            "Summary",
-            "Stars",
-            "Reporter",
-            "Opened",
-            "Component",
-            "Type",
-            "Version",
-            "Milestone",
-            "Attachments",
-            "Closed",
-            "Modified",
-            "BlockedOn",
-            "Blocking",
-            "Blocked",
-            "MergedInto",
-            "Cc",
-            "Project",
-            "Subcomponent",
-            "Reportedby",
-            "Bash",
-            "Triaged",
-            "Host"
-    };
+    private String[] columnSpec = ColumnValues.DEFAULT_COLUMN_SPEC;
 
     public AndroidIssueTrackerOptions() {
         numberOfRetries = 5;
