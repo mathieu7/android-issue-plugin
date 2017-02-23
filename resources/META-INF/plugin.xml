@@ -26,11 +26,11 @@
         <projectService serviceImplementation="ui.DynamicToolWindowWrapper"/>
 
         <!-- Tab under compiler in IntelliJ -> Preferences -->
-        <projectConfigurable instance="settings.AndroidIssueTrackerConfigurable"
+        <projectConfigurable instance="settings.IssueTrackerConfigurable"
                              id="Android Issue Tracker"/>
         <!-- Persistent data + build server communication for compiler settings -->
         <applicationService
-                serviceImplementation="settings.AndroidIssueTrackerSettings"/>
+                serviceImplementation="settings.UserSettings"/>
     </extensions>
 
     <actions>

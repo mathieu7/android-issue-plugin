@@ -2,7 +2,7 @@ package scraper;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
-import settings.AndroidIssueTrackerOptions;
+import settings.UserOptions;
 
 import java.net.URISyntaxException;
 
@@ -20,7 +20,7 @@ class URLBuilder {
      * @return String
      * @throws URISyntaxException
      */
-    public static String generateIssuesURL(final AndroidIssueTrackerOptions options)
+    public static String generateIssuesURL(final UserOptions options)
             throws URISyntaxException {
         URIBuilder builder = new URIBuilder();
         builder.setScheme(SCHEME)

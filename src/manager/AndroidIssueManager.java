@@ -13,6 +13,7 @@ import model.IssuePost;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import util.IDEUtil;
+import util.PluginTextUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -163,6 +164,7 @@ public final class AndroidIssueManager {
 
     /**
      * Write posts to storage (serialized)
+     *
      * @param posts
      */
     public static void writePostsToStorage(final List<IssuePost> posts) {
@@ -197,11 +199,12 @@ public final class AndroidIssueManager {
 
     /**
      * Write issue thread to storage (separate file for easy indexing)
+     *
      * @param issueId
      * @param threads
      */
     public static void writeThreadToStorage(@NotNull final String issueId,
-                                             final List<IssueComment> threads) {
+                                            final List<IssueComment> threads) {
         LOG.debug("Writing issue #" + issueId + " thread to directory: "
                 + ISSUE_DIRECTORY_NAME);
         File issueCacheDirectory = getIssueDirectory();
@@ -250,10 +253,12 @@ public final class AndroidIssueManager {
             IssueIndex.deleteIndex();
         } catch (IOException | IllegalAccessException ex) {
             ex.printStackTrace();
-            //TODO: Use IDEUtil methods
-            Notifications.Bus.notify(new Notification("Android Issue Tracker",
-                    "Failed", "Could not delete index/issues" +
-                    " reason: " + ex.getLocalizedMessage(), NotificationType.INFORMATION));
+            IDEUtil.displaySimpleNotification(NotificationType.INFORMATION,
+                    null,
+                    PluginTextUtil.getString("plugin_title"),
+                    "Failed: Could not delete index/issues, reason: "
+                            + ex.getLocalizedMessage()
+            );
         }
     }
 
@@ -264,6 +269,7 @@ public final class AndroidIssueManager {
 
     /**
      * Utility method to delete a directory.
+     *
      * @param directory
      * @return
      */
@@ -274,8 +280,7 @@ public final class AndroidIssueManager {
                 for (File file : files) {
                     if (file.isDirectory()) {
                         deleteDirectory(file);
-                    }
-                    else {
+                    } else {
                         boolean deleted = file.delete();
                         System.out.println("Directory: "
                                 + file.getName()

@@ -33,7 +33,7 @@ public final class DynamicToolWindowWrapper {
         mToolWindow.show(null);
 
         //set the title of the window to be the token we're looking for.
-        mToolWindow.setStripeTitle(symbol);
+        mToolWindow.setStripeTitle("Issues Found For: " + symbol);
 
         IssueResultsView view = new IssueResultsView(project, results);
         view.setClose(new Runnable() {

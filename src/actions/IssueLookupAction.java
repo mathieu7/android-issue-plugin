@@ -45,7 +45,7 @@ public final class IssueLookupAction extends AnAction {
             // Find the token under the caret when the user triggered this action.
             //int cursorPosition = caret.getOffset();
             PsiElement token = file.findElementAt(mOffset);
-            // If it's not null, look up
+            // If it's not null, look up.
             //TODO: Check to see if the token is an actual dependency or object.
             if (file instanceof PsiJavaFile) {
                 PsiImportList importList = ((PsiJavaFile) file).getImportList();

@@ -2,7 +2,7 @@ package settings;
 
 import model.ColumnValues;
 
-public class AndroidIssueTrackerOptions {
+public class UserOptions {
     /**
      * Number of retries to fetch issues with.
      */
@@ -13,7 +13,7 @@ public class AndroidIssueTrackerOptions {
      */
     private String[] columnSpec = ColumnValues.DEFAULT_COLUMN_SPEC;
 
-    public AndroidIssueTrackerOptions() {
+    public UserOptions() {
         numberOfRetries = 5;
     }
 

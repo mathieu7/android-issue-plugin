@@ -5,16 +5,16 @@ import com.intellij.notification.NotificationListener;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import settings.AndroidIssueTrackerConfigurable;
+import settings.IssueTrackerConfigurable;
 
 import javax.swing.event.HyperlinkEvent;
 
-public final class AndroidIssuesNotificationListener implements NotificationListener {
+public final class PluginNotificationListener implements NotificationListener {
     public static final String EVENT_DESCRIPTION = "configureAndroidIssuesPlugin";
 
     private final Project myProject;
 
-    public AndroidIssuesNotificationListener(@NotNull final Project project) {
+    public PluginNotificationListener(@NotNull final Project project) {
         myProject = project;
     }
 
@@ -27,7 +27,7 @@ public final class AndroidIssuesNotificationListener implements NotificationList
         if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
             if (event.getDescription().equals(EVENT_DESCRIPTION)
                     && !myProject.isDisposed()) {
-                ShowSettingsUtil.getInstance().showSettingsDialog(myProject, AndroidIssueTrackerConfigurable.ID);
+                ShowSettingsUtil.getInstance().showSettingsDialog(myProject, IssueTrackerConfigurable.ID);
                 notification.expire();
             }
         }

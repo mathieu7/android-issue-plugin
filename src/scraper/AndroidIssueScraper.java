@@ -12,11 +12,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import settings.AndroidIssueTrackerOptions;
-import settings.AndroidIssueTrackerSettings;
+import settings.UserOptions;
+import settings.UserSettings;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +31,13 @@ public final class AndroidIssueScraper {
     private static final int MAX_RESULTS_PER_PAGE = 100;
     private static final int MAX_RETRIES = 5;
     private static AndroidIssueScraper instance = new AndroidIssueScraper();
-    private AndroidIssueTrackerOptions options;
+    private UserOptions options;
 
     private AndroidIssueScraper() {
     }
 
     public static AndroidIssueScraper getInstance(@NotNull Project project) {
-        AndroidIssueTrackerSettings settings = AndroidIssueTrackerSettings.getInstance(project);
+        UserSettings settings = UserSettings.getInstance(project);
         instance.options = settings.getState();
         return instance;
     }

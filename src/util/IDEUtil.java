@@ -24,6 +24,13 @@ public final class IDEUtil {
 
     private static final Pattern NEWLINE_REGEX = Pattern.compile("\n", Pattern.LITERAL);
 
+    /**
+     * Display a tools notification.
+     * @param type
+     * @param project
+     * @param title
+     * @param message
+     */
     public static void displayToolsNotification(@NotNull final NotificationType type,
                                                 @NotNull final Project project,
                                                 @NotNull final String title,
@@ -32,11 +39,18 @@ public final class IDEUtil {
                 title, title,
                 replaceNewlines(message)
                         + "<br/><a href='"
-                        + AndroidIssuesNotificationListener.EVENT_DESCRIPTION
+                        + PluginNotificationListener.EVENT_DESCRIPTION
                         + "'>Configure</a>",
-                type, new AndroidIssuesNotificationListener(project)), project);
+                type, new PluginNotificationListener(project)), project);
     }
 
+    /**
+     * Display a simple notification.
+     * @param type
+     * @param project
+     * @param title
+     * @param message
+     */
     public static void displaySimpleNotification(@NotNull final NotificationType type,
                                                  @Nullable final Project project,
                                                  @NotNull final String title,
@@ -48,6 +62,11 @@ public final class IDEUtil {
         return NEWLINE_REGEX.matcher(s).replaceAll("<br/>");
     }
 
+    /**
+     * Display an error hint.
+     * @param editor
+     * @param message
+     */
     public static void showHintError(final Editor editor, final String message) {
         HintManager.getInstance().showErrorHint(editor, message);
     }

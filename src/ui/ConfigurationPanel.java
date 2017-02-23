@@ -5,7 +5,6 @@ import com.intellij.ui.components.JBList;
 import com.intellij.util.ui.JBUI;
 import model.ColumnValues;
 import org.jetbrains.annotations.NotNull;
-import settings.AndroidIssueTrackerOptions;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +12,7 @@ import java.awt.*;
 /**
  * Provides a configuration panel for project-level configuration.
  */
-public class AndroidIssueTrackerConfigPanel extends JPanel {
+public class ConfigurationPanel extends JPanel {
     private static final Insets COMPONENT_INSETS = JBUI.insets(4);
     private static final int ACTIVE_COL_MIN_WIDTH = 40;
     private static final int ACTIVE_COL_MAX_WIDTH = 50;
@@ -28,7 +27,7 @@ public class AndroidIssueTrackerConfigPanel extends JPanel {
 
     private final Project project;
 
-    public AndroidIssueTrackerConfigPanel(@NotNull final Project project) {
+    public ConfigurationPanel(@NotNull final Project project) {
         super(new BorderLayout());
         this.project = project;
     }
