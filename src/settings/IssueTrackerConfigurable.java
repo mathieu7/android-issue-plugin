@@ -21,10 +21,6 @@ public class IssueTrackerConfigurable implements Configurable
 
     private final ConfigurationPanel configPanel;
 
-    public IssueTrackerConfigurable(@NotNull final Project project) {
-        this(project, new ConfigurationPanel(project));
-    }
-
     private IssueTrackerConfigurable(@NotNull final Project project,
                                      @NotNull final ConfigurationPanel configPanel) {
         this.project = project;
@@ -49,7 +45,6 @@ public class IssueTrackerConfigurable implements Configurable
         final UserSettings configuration = getConfiguration();
         return false;
     }
-
 
     public void apply() throws ConfigurationException {
         final UserSettings configuration = getConfiguration();

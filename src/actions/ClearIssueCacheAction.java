@@ -8,7 +8,6 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsShowConfirmationOption;
 import com.intellij.util.ui.ConfirmationDialog;
-import manager.AndroidIssueManager;
 import tasks.DeleteDataTask;
 import util.IDEUtil;
 import util.PluginTextUtil;

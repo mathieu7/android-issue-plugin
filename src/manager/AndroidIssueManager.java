@@ -2,9 +2,7 @@ package manager;
 
 import com.google.common.io.Files;
 import com.intellij.ide.plugins.PluginManager;
-import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
 import com.intellij.openapi.extensions.PluginId;
 import com.sun.istack.internal.NotNull;
 import index.IssueIndex;

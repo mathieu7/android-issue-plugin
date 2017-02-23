@@ -2,7 +2,6 @@ package ui;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBList;
-import com.intellij.util.ui.JBUI;
 import model.ColumnValues;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,17 +12,10 @@ import java.awt.*;
  * Provides a configuration panel for project-level configuration.
  */
 public class ConfigurationPanel extends JPanel {
-    private static final Insets COMPONENT_INSETS = JBUI.insets(4);
-    private static final int ACTIVE_COL_MIN_WIDTH = 40;
-    private static final int ACTIVE_COL_MAX_WIDTH = 50;
-    private static final int DESC_COL_MIN_WIDTH = 100;
-    private static final int DESC_COL_MAX_WIDTH = 200;
-    private static final Dimension DECORATOR_DIMENSIONS = new Dimension(300, 50);
-
     private String[] mSelectedColumnSpecs;
     private int mNumberOfRetries;
 
-    private final JCheckBox suppressErrorsCheckbox = new JCheckBox();
+    private final JTextField retriesTextField = new JTextField();
 
     private final Project project;
 
@@ -78,17 +70,11 @@ public class ConfigurationPanel extends JPanel {
         panel.setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT);
         //panel.add(suppressErrorsCheckbox);
+        retriesTextField.setToolTipText(
+                "Number of HTTP retries to download issue data (default = 5)");
+        panel.add(retriesTextField);
 
         return panel;
-    }
-
-
-    public void setSuppressingErrors(final boolean suppressingErrors) {
-        suppressErrorsCheckbox.setSelected(suppressingErrors);
-    }
-
-    public boolean isSuppressingErrors() {
-        return suppressErrorsCheckbox.isSelected();
     }
 
     public void setSelectedColumnSpecs(final String[] selectedColumnSpecs) {
@@ -97,5 +83,10 @@ public class ConfigurationPanel extends JPanel {
 
     public void setNumberOfRetries(final int numberOfRetries) {
         mNumberOfRetries = numberOfRetries;
+        retriesTextField.setText(Integer.toString(numberOfRetries));
+    }
+
+    public int getNumberOfRetries() {
+        return mNumberOfRetries;
     }
 }

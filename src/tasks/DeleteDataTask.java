@@ -4,11 +4,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
-import index.IssueIndex;
 import manager.AndroidIssueManager;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
 
 /**
  * Task to delete all downloaded data and indices.

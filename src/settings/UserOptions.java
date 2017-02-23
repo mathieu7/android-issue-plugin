@@ -3,6 +3,7 @@ package settings;
 import model.ColumnValues;
 
 public class UserOptions {
+    private static final int DEFAULT_RETRIES = 5;
     /**
      * Number of retries to fetch issues with.
      */
@@ -14,7 +15,7 @@ public class UserOptions {
     private String[] columnSpec = ColumnValues.DEFAULT_COLUMN_SPEC;
 
     public UserOptions() {
-        numberOfRetries = 5;
+        numberOfRetries = DEFAULT_RETRIES;
     }
 
     public String[] getSelectedColumnSpecs() {
