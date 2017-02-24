@@ -37,9 +37,11 @@ class IssueResultsView extends JPanel implements Disposable {
     private final IssueThreadListView threadListView;
     private final JComponent secondComponent;
     private Runnable closeAction;
+    private String queryString;
 
     IssueResultsView(@NotNull final Project project,
-                     final List<IssuePost> results) {
+                     final List<IssuePost> results,
+                     final String queryString) {
         setLayout(new BorderLayout());
         table = new IssuePostTable(results);
         table.getSelectionModel().addListSelectionListener(
@@ -49,6 +51,9 @@ class IssueResultsView extends JPanel implements Disposable {
                 displaySelectedIssueThread();
             }
         });
+        //TODO: Need better sorting.
+        table.setAutoCreateRowSorter(true);
+        this.queryString = queryString;
         threadListView = new IssueThreadListView(project);
         splitter = new OnePixelSplitter(false, 0.5f);
         splitter.setFirstComponent(ScrollPaneFactory.createScrollPane(table));
@@ -146,7 +151,7 @@ class IssueResultsView extends JPanel implements Disposable {
         boolean visible = false;
         IssuePost post = getSingleSelectedRow();
         if (post != null) {
-            showIssueThread(post, "");
+            showIssueThread(post);
             visible = true;
         } else {
             threadListView.showEmpty();
@@ -167,8 +172,7 @@ class IssueResultsView extends JPanel implements Disposable {
      * @param queryString
      * @return Whether the result could be shown.
      */
-    private boolean showIssueThread(@NotNull final IssuePost post,
-                                  final String queryString) {
+    private boolean showIssueThread(@NotNull final IssuePost post) {
         List<String> issueThreads =
                 AndroidIssueManager.getIssueThreadLinesFromId(post.getId());
         threadListView.showThread(issueThreads, queryString);

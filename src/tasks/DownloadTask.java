@@ -79,6 +79,7 @@ public final class DownloadTask extends Task.Backgroundable {
                 }
             });
         }
+        executorService.shutdown();
 
         try {
             executorService.awaitTermination(EXECUTOR_TIMEOUT,

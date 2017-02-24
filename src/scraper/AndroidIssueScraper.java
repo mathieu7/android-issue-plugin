@@ -5,8 +5,10 @@ import com.intellij.openapi.project.Project;
 import model.ColumnValues;
 import model.IssueComment;
 import model.IssuePost;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.client.utils.URIBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -36,7 +38,7 @@ public final class AndroidIssueScraper {
     private AndroidIssueScraper() {
     }
 
-    public static AndroidIssueScraper getInstance(@NotNull Project project) {
+    public static AndroidIssueScraper getInstance(final @NotNull Project project) {
         UserSettings settings = UserSettings.getInstance(project);
         instance.options = settings.getState();
         return instance;
@@ -233,5 +235,34 @@ public final class AndroidIssueScraper {
      */
     public static class IssueScraperException extends Exception {
         IssueScraperException(final String message) { super(message); }
+    }
+
+    /**
+     * Helper class to generate Google Android Issue website URLs.
+     */
+    private static class URLBuilder {
+        private static final String SCHEME = "https";
+        private static final String HOST = "code.google.com";
+        private static final String PATH = "/p/android/issues/list";
+
+        /**
+         * Method to generate a Google Issues URL depending on user settings.
+         * @param options
+         * @return String
+         * @throws URISyntaxException
+         */
+        public static String generateIssuesURL(final UserOptions options)
+                throws URISyntaxException {
+            URIBuilder builder = new URIBuilder();
+            builder.setScheme(SCHEME)
+                    .setHost(HOST)
+                    .setPath(PATH)
+                    .addParameter("can", "2")
+                    //TODO: This should be whatever the user filters for.
+                    .addParameter("q", "status=assigned")
+                    .addParameter("colspec",
+                            StringUtils.join(ColumnValues.FULL_COLUMN_SPEC, " "));
+            return builder.build().toString();
+        }
     }
 }

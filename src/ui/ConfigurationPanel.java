@@ -5,8 +5,11 @@ import com.intellij.ui.components.JBList;
 import model.ColumnValues;
 import org.jetbrains.annotations.NotNull;
 
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Provides a configuration panel for project-level configuration.
@@ -16,6 +19,7 @@ public class ConfigurationPanel extends JPanel {
     private int mNumberOfRetries;
 
     private final JTextField retriesTextField = new JTextField();
+    private JList totalIssuePropertiesList, selectedIssuePropertiesList;
 
     private final Project project;
 
@@ -45,33 +49,46 @@ public class ConfigurationPanel extends JPanel {
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
         JLabel columnSpecLabel = new JLabel();
-        columnSpecLabel.setText("Possible Columns");
-        columnSpecLabel.setToolTipText("Enable columns for searching issues");
+        columnSpecLabel.setText("Issue Descriptors");
+        columnSpecLabel.setToolTipText("Enabled columns for issues");
         panel.add(columnSpecLabel);
-        JList availablePropertiesList = createListForProperties(
+        totalIssuePropertiesList = createListForProperties(
                 ColumnValues.FULL_COLUMN_SPEC);
-        panel.add(availablePropertiesList);
+        panel.add(totalIssuePropertiesList);
 
         JLabel chosenColumnSpecLabel = new JLabel();
-        chosenColumnSpecLabel.setText("Selected Columns");
-        chosenColumnSpecLabel.setToolTipText("Selected columns when searching issues");
+        chosenColumnSpecLabel.setText("Displayed Issue Descriptors");
+        chosenColumnSpecLabel.setToolTipText("Selected columns when displaying issues");
 
-        JList selectedPropertiesList = createListForProperties(mSelectedColumnSpecs);
+        selectedIssuePropertiesList = createListForProperties(mSelectedColumnSpecs);
         JPanel addRemovePanel = new JPanel();
         addRemovePanel.setLayout(new BoxLayout(addRemovePanel, BoxLayout.Y_AXIS));
         JButton addButton = new JButton(">>");
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                addSelectedColumns();
+            }
+        });
         JButton removeButton = new JButton("<<");
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                removeSelectedColumns();
+            }
+        });
         addRemovePanel.add(addButton);
         addRemovePanel.add(removeButton);
         panel.add(addRemovePanel);
         panel.add(chosenColumnSpecLabel);
-        panel.add(selectedPropertiesList);
+        panel.add(selectedIssuePropertiesList);
 
         panel.setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT);
-        //panel.add(suppressErrorsCheckbox);
         retriesTextField.setToolTipText(
                 "Number of HTTP retries to download issue data (default = 5)");
+        JLabel retriesLabel = new JLabel("Download Retries:");
+        panel.add(retriesLabel);
         panel.add(retriesTextField);
 
         return panel;
@@ -88,5 +105,22 @@ public class ConfigurationPanel extends JPanel {
 
     public int getNumberOfRetries() {
         return mNumberOfRetries;
+    }
+
+    private void addSelectedColumns() {
+        java.util.List selectedValues = totalIssuePropertiesList.getSelectedValuesList();
+        for (Object o : selectedValues) {
+            //TODO: Add to model
+        }
+    }
+
+    /**
+     * Remove the selected columns.
+     */
+    private void removeSelectedColumns() {
+        int[] selectedIndices = selectedIssuePropertiesList.getSelectedIndices();
+        for (int i = selectedIndices.length - 1; i >= 0; i--) {
+            ((DefaultListModel) selectedIssuePropertiesList.getModel()).removeElementAt(selectedIndices[i]);
+        }
     }
 }
