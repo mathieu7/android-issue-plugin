@@ -21,6 +21,10 @@ public class IssueTrackerConfigurable implements Configurable
 
     private final ConfigurationPanel configPanel;
 
+    public IssueTrackerConfigurable(@NotNull final Project project) {
+        this(project, new ConfigurationPanel(project));
+    }
+
     private IssueTrackerConfigurable(@NotNull final Project project,
                                      @NotNull final ConfigurationPanel configPanel) {
         this.project = project;
@@ -43,11 +47,15 @@ public class IssueTrackerConfigurable implements Configurable
     @Override
     public boolean isModified() {
         final UserSettings configuration = getConfiguration();
+        if (configPanel.getNumberOfRetries() != configuration.getNumberOfRetries())
+            return true;
+
         return false;
     }
 
     public void apply() throws ConfigurationException {
         final UserSettings configuration = getConfiguration();
+
     }
 
     final UserSettings getConfiguration() {
@@ -57,7 +65,8 @@ public class IssueTrackerConfigurable implements Configurable
     @Override
     public void reset() {
         final UserOptions configuration = getConfiguration().getState();
-        configPanel.setSelectedColumnSpecs(configuration.getSelectedColumnSpecs());
+        configPanel.setSelectedColumnSpecs(
+                configuration.getSelectedIssueProperties());
         configPanel.setNumberOfRetries(configuration.getNumberOfRetries());
         configPanel.initializeConfigPanel();
     }

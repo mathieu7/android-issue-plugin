@@ -12,17 +12,25 @@ public class UserOptions {
     /**
      * Default enabled columns to search with.
      */
-    private String[] columnSpec = ColumnValues.DEFAULT_COLUMN_SPEC;
+    private String[] selectedIssueProperties = ColumnValues.DEFAULT_COLUMN_SPEC;
 
     public UserOptions() {
         numberOfRetries = DEFAULT_RETRIES;
     }
 
-    public String[] getSelectedColumnSpecs() {
-        return columnSpec;
+    public String[] getSelectedIssueProperties() {
+        return selectedIssueProperties;
     }
 
     public int getNumberOfRetries() {
         return numberOfRetries;
+    }
+
+    public void setNumberOfRetries(final int retries) {
+        numberOfRetries = retries;
+    }
+
+    public void setSelectedIssueProperties(final String[] issueProperties) {
+        this.selectedIssueProperties = issueProperties;
     }
 }

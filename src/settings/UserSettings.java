@@ -44,4 +44,20 @@ public class UserSettings implements PersistentStateComponent<UserOptions> {
     public static UserSettings getDefault() {
         return getInstance(ProjectManager.getInstance().getDefaultProject());
     }
+
+    public int getNumberOfRetries() {
+        return mUserOptions.getNumberOfRetries();
+    }
+
+    public String[] getSelectedIssueProperties() {
+        return mUserOptions.getSelectedIssueProperties();
+    }
+
+    public void setNumberOfRetries(final int numberOfRetries) {
+        mUserOptions.setNumberOfRetries(numberOfRetries);
+    }
+
+    public void setSelectedIssueProperties(final String[] properties) {
+        mUserOptions.setSelectedIssueProperties(properties);
+    }
 }
