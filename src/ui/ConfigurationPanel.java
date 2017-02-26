@@ -5,16 +5,19 @@ import com.intellij.ui.components.JBList;
 import model.ColumnValues;
 import org.jetbrains.annotations.NotNull;
 
-
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 /**
  * Provides a configuration panel for project-level configuration.
  */
-public class ConfigurationPanel extends JPanel {
+public class ConfigurationPanel extends JPanel implements DocumentListener {
     private String[] mSelectedColumnSpecs;
     private int mNumberOfRetries;
 
@@ -22,6 +25,7 @@ public class ConfigurationPanel extends JPanel {
     private JList totalIssuePropertiesList, selectedIssuePropertiesList;
 
     private final Project project;
+    private boolean isDirty = false;
 
     public ConfigurationPanel(@NotNull final Project project) {
         super(new BorderLayout());
@@ -85,6 +89,7 @@ public class ConfigurationPanel extends JPanel {
 
         panel.setComponentOrientation(
                 ComponentOrientation.LEFT_TO_RIGHT);
+        retriesTextField.getDocument().addDocumentListener(this);
         retriesTextField.setToolTipText(
                 "Number of HTTP retries to download issue data (default = 5)");
         JLabel retriesLabel = new JLabel("Download Retries:");
@@ -96,6 +101,7 @@ public class ConfigurationPanel extends JPanel {
 
     public void setSelectedColumnSpecs(final String[] selectedColumnSpecs) {
         mSelectedColumnSpecs = selectedColumnSpecs;
+        selectedIssuePropertiesList = createListForProperties(mSelectedColumnSpecs);
     }
 
     public void setNumberOfRetries(final int numberOfRetries) {
@@ -107,10 +113,17 @@ public class ConfigurationPanel extends JPanel {
         return mNumberOfRetries;
     }
 
+    public boolean hasDirtySelectedProperties() {
+        return isDirty;
+    }
+
     private void addSelectedColumns() {
+        isDirty = true;
         java.util.List selectedValues = totalIssuePropertiesList.getSelectedValuesList();
         for (Object o : selectedValues) {
-            //TODO: Add to model
+            if (!((DefaultListModel) selectedIssuePropertiesList.getModel()).contains(o)) {
+                ((DefaultListModel) selectedIssuePropertiesList.getModel()).addElement(o);
+            }
         }
     }
 
@@ -118,9 +131,47 @@ public class ConfigurationPanel extends JPanel {
      * Remove the selected columns.
      */
     private void removeSelectedColumns() {
+        isDirty = true;
         int[] selectedIndices = selectedIssuePropertiesList.getSelectedIndices();
         for (int i = selectedIndices.length - 1; i >= 0; i--) {
             ((DefaultListModel) selectedIssuePropertiesList.getModel()).removeElementAt(selectedIndices[i]);
         }
+    }
+
+    /**
+     * Get the currently selected values of issue properties.
+     * @return
+     */
+    public String[] getSelectedIssueProperties() {
+        Enumeration enumeration = ((DefaultListModel) selectedIssuePropertiesList.getModel()).elements();
+        ArrayList<String> elements = new ArrayList<>();
+        while (enumeration.hasMoreElements()) {
+            Object o = enumeration.nextElement();
+            elements.add(String.valueOf(o));
+        }
+        String[] ret = new String[elements.size()];
+        elements.toArray(ret);
+        return ret;
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        parse();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        parse();
+    }
+
+    private void parse() {
+        if (Integer.parseInt(retriesTextField.getText()) < 0) {
+            retriesTextField.setText("0");
+        }
+        mNumberOfRetries = Integer.parseInt(retriesTextField.getText());
     }
 }

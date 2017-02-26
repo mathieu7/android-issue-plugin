@@ -1,8 +1,10 @@
 package ui;
 
+import com.intellij.openapi.project.Project;
 import model.ColumnValues;
 import model.IssuePost;
 import org.jetbrains.annotations.NotNull;
+import settings.UserSettings;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -19,14 +21,19 @@ class IssuePostTable extends JTable {
      * Constructor.
      * @param results The issues to display
      */
-    IssuePostTable(@NotNull final List<IssuePost> results) {
+    IssuePostTable(@NotNull Project project, @NotNull final List<IssuePost> results) {
         super(new DefaultTableModel());
 
         mModel = new IssueTableModel();
         setRowSelectionAllowed(true);
         setColumnSelectionAllowed(false);
         getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        mModel.setColumnIdentifiers(ColumnValues.DEFAULT_COLUMN_SPEC);
+        UserSettings settings = UserSettings.getInstance(project);
+        String[] columnSpec = settings.getSelectedIssueProperties();
+        if (columnSpec == null) {
+            columnSpec = ColumnValues.DEFAULT_COLUMN_SPEC;
+        }
+        mModel.setColumnIdentifiers(columnSpec);
         mModel.setDataVector(results);
         setModel(mModel);
     }
@@ -54,9 +61,9 @@ class IssuePostTable extends JTable {
         private void convertToTableFormat() {
             if (issuePosts == null) return;
             postTable = new String[issuePosts.size()]
-                    [ColumnValues.DEFAULT_COLUMN_SPEC.length];
+                    [columnIdentifiers.length];
             for (int i = 0; i < issuePosts.size(); i++) {
-                postTable[i] = issuePosts.get(i).getAsArray(ColumnValues.DEFAULT_COLUMN_SPEC);
+                postTable[i] = issuePosts.get(i).getAsArray(columnIdentifiers);
             }
         }
 

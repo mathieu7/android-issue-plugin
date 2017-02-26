@@ -1,6 +1,5 @@
 package settings;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -21,6 +20,8 @@ public class IssueTrackerConfigurable implements Configurable
 
     private final ConfigurationPanel configPanel;
 
+    private UserSettings userSettings;
+
     public IssueTrackerConfigurable(@NotNull final Project project) {
         this(project, new ConfigurationPanel(project));
     }
@@ -28,6 +29,7 @@ public class IssueTrackerConfigurable implements Configurable
     private IssueTrackerConfigurable(@NotNull final Project project,
                                      @NotNull final ConfigurationPanel configPanel) {
         this.project = project;
+        this.userSettings = UserSettings.getInstance(project);
         this.configPanel = configPanel;
     }
 
@@ -40,34 +42,29 @@ public class IssueTrackerConfigurable implements Configurable
     }
 
     public JComponent createComponent() {
-        reset();
         return configPanel;
     }
 
     @Override
     public boolean isModified() {
-        final UserSettings configuration = getConfiguration();
-        if (configPanel.getNumberOfRetries() != configuration.getNumberOfRetries())
+        if (configPanel.getNumberOfRetries() != userSettings.getNumberOfRetries())
             return true;
-
+        if (configPanel.hasDirtySelectedProperties())
+            return true;
         return false;
     }
 
     public void apply() throws ConfigurationException {
-        final UserSettings configuration = getConfiguration();
-
+        userSettings.setSelectedIssueProperties(configPanel.getSelectedIssueProperties());
+        userSettings.setNumberOfRetries(configPanel.getNumberOfRetries());
     }
 
-    final UserSettings getConfiguration() {
-        return ServiceManager.getService(project, UserSettings.class);
-    }
 
     @Override
     public void reset() {
-        final UserOptions configuration = getConfiguration().getState();
         configPanel.setSelectedColumnSpecs(
-                configuration.getSelectedIssueProperties());
-        configPanel.setNumberOfRetries(configuration.getNumberOfRetries());
+                userSettings.getSelectedIssueProperties());
+        configPanel.setNumberOfRetries(userSettings.getNumberOfRetries());
         configPanel.initializeConfigPanel();
     }
 

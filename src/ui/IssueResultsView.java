@@ -43,7 +43,7 @@ class IssueResultsView extends JPanel implements Disposable {
                      final List<IssuePost> results,
                      final String queryString) {
         setLayout(new BorderLayout());
-        table = new IssuePostTable(results);
+        table = new IssuePostTable(project, results);
         table.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener() {
             @Override

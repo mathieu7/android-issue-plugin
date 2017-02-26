@@ -12,10 +12,11 @@ public class UserOptions {
     /**
      * Default enabled columns to search with.
      */
-    private String[] selectedIssueProperties = ColumnValues.DEFAULT_COLUMN_SPEC;
+    private String[] selectedIssueProperties;
 
     public UserOptions() {
         numberOfRetries = DEFAULT_RETRIES;
+        selectedIssueProperties = ColumnValues.DEFAULT_COLUMN_SPEC;
     }
 
     public String[] getSelectedIssueProperties() {
