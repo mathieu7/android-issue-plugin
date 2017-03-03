@@ -38,14 +38,14 @@ public final class SyncIssuesAction extends AnAction implements
 
     @Override
     public void onIndexingCompleted() {
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
+        /*ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
                 Messages.showInfoMessage(mProject,
                         "Indexing completed",
                         PluginTextUtil.getString("plugin_title"));
             }
-        });
+        });*/
     }
 
     @Override
