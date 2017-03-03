@@ -13,6 +13,14 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        Alpha version. Feedback and questions welcome!<br>
+        Changes to come:<br>
+        <ul>
+            <li>Allow more user flexibility</li>
+            <li>Refresh individual issues</li>
+            <li>Search/highlight for workarounds from code blocks</li>
+            <li>Gradle support (tasks, etc.)</li>
+         </ul>
     ]]>
     </change-notes>
 
@@ -20,7 +28,7 @@
     <idea-version since-build="141.0"/>
 
     <depends>com.intellij.modules.java</depends>
-    <!--<depends>com.intellij.modules.androidstudio</depends>-->
+    <depends>com.intellij.modules.androidstudio</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="ui.DynamicToolWindowWrapper"/>
