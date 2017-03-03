@@ -42,9 +42,8 @@
     </extensions>
 
     <actions>
-        <group id="AndroidIssueTracker.Menu" text="_Android Issue Tracker"
+        <group id="AndroidIssueTrackerToolsGroup" popup="true" text="Android Issue Tracker"
                description="Android Issue Tracker">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
             <action class="actions.SyncIssuesAction"
                     id="com.miller.androidissues.actions.SyncIssuesAction"
                     text="Sync Android Issues"
@@ -64,6 +63,7 @@
                     text="Report an AOSP issue..."
                     description="Report an issue to AOSP tracker">
             </action>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
         </group>
         <action id="com.miller.androidissues.actions.FindIssuesAction"
                 class="actions.IssueLookupAction"
