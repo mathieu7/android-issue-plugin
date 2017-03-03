@@ -31,16 +31,15 @@ public final class AndroidIssueScraper {
     private static final String PAGINATION_PARAMS_TEMPLATE = "&num=%d&start=%d";
     private static final String PAGINATION_REGEX = ".*\\s*(\\d+)\\s*-\\s*(\\d+)\\s*of\\s*(\\d+).*";
     private static final int MAX_RESULTS_PER_PAGE = 100;
-    private static final int MAX_RETRIES = 5;
+    private static int sRetries;
     private static AndroidIssueScraper instance = new AndroidIssueScraper();
-    private UserOptions options;
 
     private AndroidIssueScraper() {
     }
 
     public static AndroidIssueScraper getInstance(final @NotNull Project project) {
         UserSettings settings = UserSettings.getInstance(project);
-        instance.options = settings.getState();
+        sRetries = settings.getState().getNumberOfRetries();
         return instance;
     }
 
@@ -201,7 +200,7 @@ public final class AndroidIssueScraper {
                                         final int numResults)
             throws IssueScraperException {
         try {
-            String url = URLBuilder.generateIssuesURL(options)
+            String url = URLBuilder.generateIssuesURL()
                     + String.format(PAGINATION_PARAMS_TEMPLATE, numResults, offset);
             return fetchFromUrl(url);
         } catch (URISyntaxException exception) {
@@ -211,12 +210,12 @@ public final class AndroidIssueScraper {
 
     private Document fetchFromUrl(final String url) throws IssueScraperException {
         int retries = 0;
-        while (retries < MAX_RETRIES) {
+        while (retries < sRetries) {
             try {
                 return Jsoup.connect(url).get();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                LOG.debug("Retrying "+ retries + "/"+ MAX_RETRIES);
+                LOG.debug("Retrying "+ retries + "/"+ sRetries);
             }
             retries++;
         }
@@ -247,11 +246,10 @@ public final class AndroidIssueScraper {
 
         /**
          * Method to generate a Google Issues URL depending on user settings.
-         * @param options
          * @return String
          * @throws URISyntaxException
          */
-        public static String generateIssuesURL(final UserOptions options)
+        public static String generateIssuesURL()
                 throws URISyntaxException {
             URIBuilder builder = new URIBuilder();
             builder.setScheme(SCHEME)
