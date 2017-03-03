@@ -7,6 +7,10 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
+import com.intellij.openapi.progress.util.ReadTask;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
@@ -85,9 +89,10 @@ public final class IssueLookupAction extends AnAction {
                     PluginTextUtil.getString("issue_lookup_error_no_index"));
             return;
         }
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
+        ReadTask readTask = new ReadTask() {
+
             @Override
-            public void run() {
+            public void computeInReadAction(@NotNull ProgressIndicator indicator) throws ProcessCanceledException {
                 ArrayList<String> issueIds = null;
                 try {
                     issueIds = IssueIndex.searchForTerm(mToken);
@@ -96,9 +101,20 @@ public final class IssueLookupAction extends AnAction {
                 }
                 ArrayList<IssuePost> posts = (ArrayList<IssuePost>)
                         AndroidIssueManager.getFilteredIssueList(issueIds);
-                showSamplesToolWindow(mProject, mToken, posts);
+                ApplicationManager.getApplication().invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        showSamplesToolWindow(mProject, mToken, posts);
+                    }
+                });
             }
-        });
+
+            @Override
+            public void onCanceled(@NotNull ProgressIndicator progressIndicator) {
+                System.out.println("ReadTask cancelled");
+            }
+        };
+        ProgressIndicatorUtils.scheduleWithWriteActionPriority(readTask);
     }
 
     /**
