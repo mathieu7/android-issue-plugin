@@ -1,12 +1,11 @@
 # Android Issue Tracker Plugin (For Android Studio) #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+Intellij plugin for Android Studio that queries for issues on the AOSP Issue Tracker.
 
 ### What is this repository for? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Hosts the code base for the plugin.
+* Version: 1.0.0
 
 ### How do I get set up? ###
 
@@ -23,7 +22,3 @@ This README would normally document whatever steps are necessary to get your app
 * Code review
 * Other guidelines
 
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
