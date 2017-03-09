@@ -5,20 +5,17 @@ Intellij plugin for Android Studio that queries for issues on the AOSP Issue Tra
 ### What is this repository for? ###
 
 * Hosts the code base for the plugin.
-* Version: 1.0.0
+* Version: 1.0.0 (alpha)
 
-### How do I get set up? ###
+### Installation ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+1. Download the plugin zip file [here](AndroidIssueTracker.zip)
+2. Open Android Studio
+3. Click Settings|Preferences in the main menu
+4. Click 'Plugins'
+5. Click install plugin from disk, select the zip file, and enable the plugin
+6. You're all set!
 
 ### Contribution guidelines ###
 
-* Writing tests
-* Code review
-* Other guidelines
-
+* Feel free to submit pull requests for issues and new features. Thanks!
