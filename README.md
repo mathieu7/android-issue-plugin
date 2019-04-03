@@ -1,4 +1,4 @@
-# Android Issue Tracker Plugin (For Android Studio) #
+# Android Issue Tracker Plugin (For Android Studio) [Deprecated, For Code Samples Only] #
 
 Intellij plugin for Android Studio that queries for issues on the AOSP Issue Tracker.
 
